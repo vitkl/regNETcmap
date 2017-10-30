@@ -1,0 +1,11 @@
+Package: regNETcmap
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.1.0
+Author: Vitalii Kleshchevnikov
+Maintainer: Vitalii Kleshchevnikov <vitalii@ebi.ac.uk>
+Description: Identify genes-transcriptional regulators of a group or two groups of genes  
+License: GNU v3
+Encoding: UTF-8
+LazyData: true
+Depends: cmapR, data.table, downloader
