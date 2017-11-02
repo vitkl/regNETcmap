@@ -2,19 +2,52 @@
 % Please edit documentation in R/loadCMap.R
 \name{openCellInfo}
 \alias{openCellInfo}
-\title{Read Connectivity Map project cell line data (2nd phase, Level 5)}
+\alias{openFeatureData}
+\alias{openpData}
+\alias{openPerturbDetails}
+\title{Read connectivity map annotations}
 \usage{
 openCellInfo(CMap_files)
+
+openFeatureData(CMap_files)
+
+openpData(CMap_files)
+
+openPerturbDetails(CMap_files)
 }
 \arguments{
+\item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
+
+\item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
+
+\item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
+
 \item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
 }
 \value{
 data.table containing Cell line Information from the Connectivity map project
+
+data.table containing featureData (\code{\link[Biobase]{featureData}}) from the Connectivity map project
+
+data.table containing the sample descriptions (pData) (\code{\link[Biobase]{pData}}) from the Connectivity map project
+
+data.table containing the perturbation details from the Connectivity map project
 }
 \description{
 Read Connectivity Map project cell line data (2nd phase, Level 5)
+
+Read Connectivity Map project featureData (2nd phase, Level 5)
+
+Read Connectivity Map project sample descriptions (pData) (2nd phase, Level 5)
+
+Read Connectivity Map project perturbation details (2nd phase, Level 5)
 }
 \author{
+Vitalii Kleshchevnikov
+
+Vitalii Kleshchevnikov
+
+Vitalii Kleshchevnikov
+
 Vitalii Kleshchevnikov
 }

@@ -37,8 +37,10 @@ loadCMap = function(directory = getwd()){
   return(CMap_files)
 }
 
-##' Read Connectivity Map project cell line data (2nd phase, Level 5)
+##' Read connectivity map annotations
+##' @rdname openCellInfo
 ##' @name openCellInfo
+##' @description Read Connectivity Map project cell line data (2nd phase, Level 5)
 ##' @author Vitalii Kleshchevnikov
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
 ##' @return data.table containing Cell line Information from the Connectivity map project
@@ -56,9 +58,10 @@ openCellInfo = function(CMap_files) {
   return(CellInfo)
 }
 
-##' Read Connectivity Map project featureData (2nd phase, Level 5)
+##' @rdname openCellInfo
 ##' @name openFeatureData
 ##' @author Vitalii Kleshchevnikov
+##' @description Read Connectivity Map project featureData (2nd phase, Level 5)
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
 ##' @return data.table containing featureData (\code{\link[Biobase]{featureData}}) from the Connectivity map project
 ##' @importFrom R.utils gunzip
@@ -70,14 +73,15 @@ openFeatureData = function(CMap_files) {
   R.utils::gunzip(CMap_files$featureData[2],
                   destname = unzipped,
                   remove = F, overwrite = T)
-  featureData = fread(unzipped, stringsAsFactors = T)
+  featureData = fread(unzipped, stringsAsFactors = T, colClasses = c("character", "character", "character", "integer", "integer"))
   unlink(unzipped)
   return(featureData)
 }
 
-##' Read Connectivity Map project sample descriptions (pData) (2nd phase, Level 5)
+##' @rdname openCellInfo
 ##' @name openpData
 ##' @author Vitalii Kleshchevnikov
+##' @description Read Connectivity Map project sample descriptions (pData) (2nd phase, Level 5)
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
 ##' @return data.table containing the sample descriptions (pData) (\code{\link[Biobase]{pData}}) from the Connectivity map project
 ##' @importFrom R.utils gunzip
@@ -89,14 +93,15 @@ openpData = function(CMap_files) {
   R.utils::gunzip(CMap_files$pdata_level5[2],
                   destname = unzipped,
                   remove = F, overwrite = T)
-  pData = fread(unzipped, stringsAsFactors = T)
+  pData = fread(unzipped, stringsAsFactors = T, colClasses = c("character", "character", "character", "character", "numeric", "character", "character", "numeric","character","character", "character"))
   unlink(unzipped)
   return(pData)
 }
 
-##' Read Connectivity Map project perturbation details (2nd phase, Level 5)
+##' @rdname openCellInfo
 ##' @name openPerturbDetails
 ##' @author Vitalii Kleshchevnikov
+##' @description Read Connectivity Map project perturbation details (2nd phase, Level 5)
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
 ##' @return data.table containing the perturbation details from the Connectivity map project
 ##' @importFrom R.utils gunzip
