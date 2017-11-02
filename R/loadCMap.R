@@ -2,12 +2,12 @@
 ##' @name loadCMap
 ##' @author Vitalii Kleshchevnikov
 ##' @description Download Connectivity Map project data to a specified directory. !! ATTENTION !! This is a 20 GB download. Details: \link{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE92742}. A description of the latest file, and a table listing the contents of the 'Broad_LINCS_auxiliary_datasets.tar.gz' file are updated in the following document: \link{https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/edit#heading=h.l6bq0r1aih50}
-##' @description LINCS aims to enable a functional understanding of biology by cataloging changes in gene expression and other cellular processes that occur when cells are exposed to a variety of perturbing agents. The Broad Institute LINCS Center for Transcriptomics contributes to this collaborative effort by application of the Connectivity Map concept. In brief, the study design involves the generation of a compendium of transcriptional expression data from cultured human cells treated with small-molecule and genetic loss/gain of function perturbagens. These measurements are made using the L1000 high-throughput gene-expression assay that enables data generation at an unprecedented scale. The data are processed through a computational system, that converts raw fluorescence intensities into differential gene expression signatures. The data at each stage of the pre-processing are available:
-##' @description Level 1 (LXB) - raw, unprocessed flow cytometry data from Luminex scanners. One LXB file is generated for each well of a 384-well plate, and each file contains a fluorescence intensity value for every observed analyte in the well.
-##' @description Level 2 (GEX) - gene expression values per 1,000 genes after deconvolution from Luminex beads.
-##' @description Level 3 (Q2NORM) - gene expression profiles of both directly measured landmark transcripts plus inferred genes. Normalized using invariant set scaling followed by quantile normalization.
-##' @description Level 4 (Z-SCORES) - signatures with differentially expressed genes computed by robust z-scores for each profile relative to control (PC relative to plate population as control; VC relative to vehicle control).
-##' @description Level 5 (SIG) consists of the replicates, usually 3 per treatment, aggregated into a single differential expression vector derived from the weighted averages of the individual replicates.
+##' @details LINCS aims to enable a functional understanding of biology by cataloging changes in gene expression and other cellular processes that occur when cells are exposed to a variety of perturbing agents. The Broad Institute LINCS Center for Transcriptomics contributes to this collaborative effort by application of the Connectivity Map concept. In brief, the study design involves the generation of a compendium of transcriptional expression data from cultured human cells treated with small-molecule and genetic loss/gain of function perturbagens. These measurements are made using the L1000 high-throughput gene-expression assay that enables data generation at an unprecedented scale. The data are processed through a computational system, that converts raw fluorescence intensities into differential gene expression signatures. The data at each stage of the pre-processing are available:
+##' @details Level 1 (LXB) - raw, unprocessed flow cytometry data from Luminex scanners. One LXB file is generated for each well of a 384-well plate, and each file contains a fluorescence intensity value for every observed analyte in the well.
+##' @details Level 2 (GEX) - gene expression values per 1,000 genes after deconvolution from Luminex beads.
+##' @details Level 3 (Q2NORM) - gene expression profiles of both directly measured landmark transcripts plus inferred genes. Normalized using invariant set scaling followed by quantile normalization.
+##' @details Level 4 (Z-SCORES) - signatures with differentially expressed genes computed by robust z-scores for each profile relative to control (PC relative to plate population as control; VC relative to vehicle control).
+##' @details Level 5 (SIG) consists of the replicates, usually 3 per treatment, aggregated into a single differential expression vector derived from the weighted averages of the individual replicates.
 ##' @param directory dir where to save Connectivity Map project data
 ##' @return list of paths to Connectivity Map project files
 ##' @import cmapR
@@ -42,7 +42,7 @@ loadCMap = function(directory = getwd()){
 ##' @author Vitalii Kleshchevnikov
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
 ##' @return data.table containing Cell line Information from the Connectivity map project
-##' @importFrom R.utils
+##' @importFrom R.utils gunzip
 ##' @import data.table
 ##' @export openCellInfo
 openCellInfo = function(CMap_files) {
@@ -60,8 +60,8 @@ openCellInfo = function(CMap_files) {
 ##' @name openFeatureData
 ##' @author Vitalii Kleshchevnikov
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
-##' @return data.table containing featureData (\code{\link[Biobase]{featureData}) from the Connectivity map project
-##' @importFrom R.utils
+##' @return data.table containing featureData (\code{\link[Biobase]{featureData}}) from the Connectivity map project
+##' @importFrom R.utils gunzip
 ##' @import data.table
 ##' @export openFeatureData
 openFeatureData = function(CMap_files) {
@@ -79,8 +79,8 @@ openFeatureData = function(CMap_files) {
 ##' @name openpData
 ##' @author Vitalii Kleshchevnikov
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
-##' @return data.table containing the sample descriptions (pData) (\code{\link[Biobase]{pData}) from the Connectivity map project
-##' @importFrom R.utils
+##' @return data.table containing the sample descriptions (pData) (\code{\link[Biobase]{pData}}) from the Connectivity map project
+##' @importFrom R.utils gunzip
 ##' @import data.table
 ##' @export openpData
 openpData = function(CMap_files) {
@@ -99,7 +99,7 @@ openpData = function(CMap_files) {
 ##' @author Vitalii Kleshchevnikov
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
 ##' @return data.table containing the perturbation details from the Connectivity map project
-##' @importFrom R.utils
+##' @importFrom R.utils gunzip
 ##' @import data.table
 ##' @export openPerturbDetails
 openPerturbDetails = function(CMap_files) {
@@ -108,7 +108,7 @@ openPerturbDetails = function(CMap_files) {
   R.utils::gunzip(CMap_files$perturbation_details[2],
                   destname = unzipped,
                   remove = F, overwrite = T)
-  PerturbDetails = fread(unzipped, stringsAsFactors = T)
+  PerturbDetails = fread(unzipped, stringsAsFactors = T, colClasses = c("character", "character", "character", "integer", "character", "character", "character", "character"))
   unlink(unzipped)
   return(PerturbDetails)
 }
