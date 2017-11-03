@@ -3,7 +3,10 @@ library(devtools)
 document()
 install()
 
-library(regNETcmap)
+#devtools::install_github("cmap/cmapR")
+#source("https://bioconductor.org/biocLite.R")
+#biocLite("rhdf5")
+#library(regNETcmap)
 ?loadCMap
 
 CMap_dirs = loadCMap(directory = "./test_data/")

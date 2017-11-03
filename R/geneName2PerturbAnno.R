@@ -31,3 +31,34 @@ geneName2PerturbAnno = function(gene_names = "TP53", CMap_dirs, is_touchstone = 
 
   PerturbAnno
 }
+
+##' @rdname geneName2PerturbAnno
+##' @name anyGeneID2PerturbAnno
+##' @author Vitalii Kleshchevnikov
+##' @description \code{anyGeneID2PerturbAnno} retrieves perturbation annotations for a set of gene idenfified using any type of ID in Homo.sapiens or UniProt.ws, including additional filtering by cell line, perturbation type (compound, shRNA, overexpression, e.g.) and time
+##' @param keys a character vector of identifiers, check possible options for type of identifier by calling keytypes(org.db)
+##' @param org.db org.db of choice: Homo.sapiens or UniProt.ws::UniProt.ws(9606)
+##' @param keytype type of identifier used in \code{keys}
+##' @return data.table containing the perturbation details from the Connectivity map project
+##' @import data.table
+##' @export anyGeneID2PerturbAnno
+##' @seealso \code{\link{openCellInfo}}, \code{\link{loadCMap}}, \code{\link{perturbTable}}
+anyGeneID2PerturbAnno = function(keys = "Q9NZL3", CMap_dirs, org.db = c("UniProt.ws", "Homo.sapiens")[1], keytype = "UNIPROTKB", is_touchstone = c("all", T, F), pert_types = c("trt_sh.cgs", "trt_sh", "trt_sh.css"), pert_times = c("all"), cell_ids = c("all")){
+  if(org.db == "UniProt.ws"){
+    db = UniProt.ws::UniProt.ws(taxId = 9606)
+    mapping = UniProt.ws::select(x = db, keys = keys, columns = c("GENES", keytype[1]), keytype = keytype[1])
+    mapping$GENES = gsub(" .+$", "", mapping$GENES)
+    mapping$pert_iname = mapping$GENES
+    mapping$GENES = NULL
+  }
+  if(org.db == "Homo.sapiens"){
+    db = Homo.sapiens::Homo.sapiens
+    mapping = AnnotationDbi::select(x = db, keys = keys, columns = c("SYMBOL", keytype[1]), keytype = keytype[1])
+    mapping$pert_iname = mapping$SYMBOL
+    mapping$SYMBOL = NULL
+  }
+
+  res = geneName2PerturbAnno(gene_names = unique(mapping$pert_iname), CMap_dirs = CMap_dirs, is_touchstone = is_touchstone, pert_types = pert_types, pert_times = pert_times, cell_ids = cell_ids)
+  res = res[mapping, on = "pert_iname", nomatch = 0]
+  res
+}
