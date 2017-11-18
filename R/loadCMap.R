@@ -93,7 +93,7 @@ openpData = function(CMap_files) {
   R.utils::gunzip(CMap_files$pdata_level5[2],
                   destname = unzipped,
                   remove = F, overwrite = T)
-  pData = fread(unzipped, stringsAsFactors = T, colClasses = c("character", "character", "character", "character", "numeric", "character", "character", "numeric","character","character", "character"))
+  pData = fread(unzipped, stringsAsFactors = T, colClasses = c("character", "character", "character", "character", "numeric", "character", "character", "numeric","character","character", "character", "character"))
   unlink(unzipped)
   return(pData)
 }
