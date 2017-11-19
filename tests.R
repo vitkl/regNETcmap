@@ -31,10 +31,10 @@ pdata[pert_type %in% "trt_sh.cgs", pert_iname]))
 pdata[pert_type %in% "trt_cp", uniqueN(pert_iname)]
 pdata[pert_type %in% "trt_sh.css", uniqueN(pert_iname)]
 
-par(mar = c(5,5,5,0))
+par(mar = c(5,5,5,0), bg = "black", col.axis = "white", col.lab = "white", col.main = "white", col.sub = "white")
 barplot(c(50, 10, 12, 40), col = c("#EC2E53", "#328BFF","#EC2E53", "#328BFF"),
         names.arg = c("same module\nactivating", "same module\ninhibiting","other module\nactivating", "other module\ninhibiting"),
         main = "number of gene-module interactions",
-        cex.axis = 2, cex.main = 2, cex.names = 1.71, border = "transparent", mgp =  c(3, 2.2, 0.3))
+        cex.axis = 2, cex.main = 2, cex.names = 1.71, border = "transparent", mgp =  c(3, 2.3, -0.2))
 
 
