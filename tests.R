@@ -1,3 +1,5 @@
+#devtools::install_github("klutometis/roxygen")
+#devtools::install_github("cmap/cmapR")
 library(roxygen2)
 library(devtools)
 document()

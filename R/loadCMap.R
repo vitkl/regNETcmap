@@ -28,6 +28,7 @@ loadCMap = function(directory = getwd()){
     perturbation_details = c("ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE92nnn/GSE92742/suppl/GSE92742_Broad_LINCS_pert_info.txt.gz",
                              paste0(directory,"/GSE92742_Broad_LINCS_pert_info.txt.gz"))
   )
+  if(!dir.exists(directory)) dir.create(directory, recursive = T)
   for(i in 1:length(CMap_files)){
     if(!file.exists(CMap_files[[i]][2])) {
       message(paste0("downloading ", names(CMap_files[i]), " from ", CMap_files[[i]][1]))
