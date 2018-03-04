@@ -1,12 +1,12 @@
 Package: regNETcmap
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Tools to study transcriptional regulation using perturbation screens followed by transcriptomic profiling (incl. cmap, Perturb-seq)
 Version: 0.1.0
 Author: Vitalii Kleshchevnikov
-Maintainer: Vitalii Kleshchevnikov <vitalii@ebi.ac.uk>
+Maintainer: Vitalii Kleshchevnikov <vk7@sanger.ac.uk>
 Description: Identify genes-transcriptional regulators of a group or two groups of genes  
 License: GNU v3
 Encoding: UTF-8
 LazyData: true
-Depends: cmapR, data.table, downloader
+Depends: cmapR, data.table, downloader, rhdf5
 RoxygenNote: 6.0.1.9000

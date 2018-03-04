@@ -118,3 +118,20 @@ openPerturbDetails = function(CMap_files) {
   unlink(unzipped)
   return(PerturbDetails)
 }
+
+##' @rdname loadCMap
+##' @name unzipCMapData
+##' @author Vitalii Kleshchevnikov
+##' @description Unzip Connectivity Map data (2nd phase, Level 5)
+##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
+##' @return TRUE
+##' @importFrom R.utils gunzip
+##' @export unzipCMapData
+unzipCMapData = function(CMap_files) {
+  unzipped = substr(CMap_files$sig_level5[2],
+                    1, nchar(CMap_files$sig_level5[2])-3)
+  R.utils::gunzip(CMap_files$sig_level5[2],
+                  destname = unzipped,
+                  remove = F, overwrite = F)
+  return(TRUE)
+}
