@@ -10,7 +10,7 @@ ks.test_expl(N_other = 1000, N_set = 100, alternative = "greater",
   title = "Treatment: anti-Oct4 shRNA.\\nOct4 is a pos. and a neg. regulator of its targets",
   xlab = "z-score, simulated", lab_other = "other genes",
   lab_set = "Oct4 targets", seed = 1, x = NULL, y = NULL,
-  distr = rnorm, ...)
+  distr = rnorm, col_other = "black", col_set = "blue", ...)
 }
 \arguments{
 \item{N_other}{integer, size of the "other" group, ignored if x is provided}
@@ -47,6 +47,10 @@ ks.test_expl(N_other = 1000, N_set = 100, alternative = "greater",
 
 \item{distr}{function that generates a vector of random numbers of lenght n (n argument to this function). rnorm by default}
 
+\item{col_other}{color of the other distribution (passed to plot(col = )). Details \code{\link[graphics]{plot}}}
+
+\item{col_set}{color of the other distribution (passed to plot(col = )). Details \code{\link[graphics]{plot}}}
+
 \item{...}{other plotting parameters \code{\link[graphics]{plot}}}
 }
 \value{
@@ -54,6 +58,11 @@ list containing the output of KS-test and Wilcox-test
 }
 \description{
 This function generates random data (rnorm, or other provided by distr argument) or uses user-provided data to explain how KS-test and Wilcox-test measure difference in distributions. It shows empirical cumulative distribution of z-scores for a given group of genes (set) and for all other genes (other). User can compare this plot to the KS-test and the Wilcox-test results.
+}
+\examples{
+# Let's have a look at a TF that regulates
+# some of it's targets positively, some negatively and some are not affected.
+ks.test_expl(alternative = "greater", prop_pos = 0.33, prop_neg = 0.4, seed = 1, cex.main = 1.4)
 }
 \author{
 Vitalii Kleshchevnikov

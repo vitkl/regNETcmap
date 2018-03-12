@@ -25,7 +25,7 @@ geneName2PerturbAnno = function(gene_names = "TP53", CMap_dirs, is_touchstone = 
   if(cell_ids == "all") NULL else {
     PerturbAnno = PerturbAnno[cell_id %in% cell_ids]
   }
-  if(pert_time == "all") NULL else {
+  if(pert_times == "all") NULL else {
     PerturbAnno = PerturbAnno[pert_time %in% pert_times]
   }
 

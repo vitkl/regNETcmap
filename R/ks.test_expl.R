@@ -20,13 +20,15 @@
 ##' @param x numeric vector, the distribution of values of the "other" group. These can come from the experimental data.
 ##' @param y numeric vector, the distribution of values of the "set" group. These can come from the experimental data.
 ##' @param distr function that generates a vector of random numbers of lenght n (n argument to this function). rnorm by default
+##' @param col_other color of the other distribution (passed to plot(col = )). Details \code{\link[graphics]{plot}}
+##' @param col_set color of the other distribution (passed to plot(col = )). Details \code{\link[graphics]{plot}}
 ##' @param ... other plotting parameters \code{\link[graphics]{plot}}
 ##' @return list containing the output of KS-test and Wilcox-test
-##' @example # Let's have a look at a TF that regulates
+##' @examples # Let's have a look at a TF that regulates
 ##' # some of it's targets positively, some negatively and some are not affected.
 ##' ks.test_expl(alternative = "greater", prop_pos = 0.33, prop_neg = 0.4, seed = 1, cex.main = 1.4)
 ##' @export ks.test_expl
-ks.test_expl = function(N_other = 1000, N_set = 100, alternative = "greater", z_score = 1.5, prop_pos = 0.3, prop_neg = 0, x_coor_other = -1.7, x_coor_set = 1.7, cex = 1.7, title = "Treatment: anti-Oct4 shRNA.\nOct4 is a pos. and a neg. regulator of its targets", xlab = "z-score, simulated", lab_other = "other genes", lab_set = "Oct4 targets", seed = 1, x = NULL, y = NULL, distr = rnorm, ...) {
+ks.test_expl = function(N_other = 1000, N_set = 100, alternative = "greater", z_score = 1.5, prop_pos = 0.3, prop_neg = 0, x_coor_other = -1.7, x_coor_set = 1.7, cex = 1.7, title = "Treatment: anti-Oct4 shRNA.\nOct4 is a pos. and a neg. regulator of its targets", xlab = "z-score, simulated", lab_other = "other genes", lab_set = "Oct4 targets", seed = 1, x = NULL, y = NULL, distr = rnorm, col_other = "black", col_set = "blue",  ...) {
   set.seed(seed)
 
   #data
@@ -42,16 +44,16 @@ ks.test_expl = function(N_other = 1000, N_set = 100, alternative = "greater", z_
   par(mar = c(5,5,3,2.5))
   plot(ecdf(random1), xlab = xlab, ylab = "ECDF",
        main = title,
-       cex.lab = cex, cex.axis = cex, ...)
+       cex.lab = cex, cex.axis = cex, col = col_other, ...)
   lines(x = c(median(random1),
               median(random1)),
-        y = c(0,1), lwd = 2, col = "black")
+        y = c(0,1), lwd = 2, col = col_other)
   lines(x = c(median(random23),
               median(random23)),
-        y = c(0,1), lwd = 2, col = "blue")
-  lines(ecdf(random23), col = "blue")
-  text(x = x_coor_other, y = 0.6, lab_other, col = "black", cex = cex)
-  text(x = x_coor_set, y = 0.4, lab_set, col = "blue", cex = cex)
+        y = c(0,1), lwd = 2, col = col_set)
+  lines(ecdf(random23), col = col_set)
+  text(x = x_coor_other, y = 0.6, lab_other, col = col_other, cex = cex)
+  text(x = x_coor_set, y = 0.4, lab_set, col = col_set, cex = cex)
 
   # tests
   test_res = list()
@@ -62,7 +64,7 @@ ks.test_expl = function(N_other = 1000, N_set = 100, alternative = "greater", z_
     alternative_ks = "less"
     alternative_wilcox = "greater"
   }
-  test_res$ks = ks.test(random1, random23, alternative = "greater")
-  test_res$wilcox = wilcox.test(random1, random23, alternative = "less")
+  test_res$ks = ks.test(random1, random23, alternative = alternative_ks)
+  test_res$wilcox = wilcox.test(random1, random23, alternative = alternative_wilcox)
   test_res
 }
