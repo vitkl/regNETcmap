@@ -11,17 +11,17 @@ install()
 library(regNETcmap)
 ?loadCMap
 
-CMap_dirs = loadCMap(directory = "../regulatory_networks_by_cmap/data/cmap/")
-fdata = openFeatureData(CMap_dirs)
-pdata = openpData(CMap_dirs)
-perturbTable(CMap_dirs)
-perturbTable(CMap_dirs, pert_type ~ cell_id)
-perturbTable(CMap_dirs, ~ pert_time)
+CMap_files = loadCMap(directory = "../regulatory_networks_by_cmap/data/cmap/")
+fdata = openFeatureData(CMap_files)
+pdata = openpData(CMap_files)
+perturbTable(CMap_files)
+perturbTable(CMap_files, pert_type ~ cell_id)
+perturbTable(CMap_files, ~ pert_time)
 
-p53IDs = geneName2PerturbAnno(gene_names = "TP53", CMap_dirs,
+p53IDs = geneName2PerturbAnno(gene_names = "TP53", CMap_files,
                               is_touchstone = c("all", T, F), pert_types = c("trt_sh.cgs"), pert_times = c("all"), cell_ids = c("all"))
 
-pertTypesTimes(CMap_dirs, p53IDs)
+pertTypesTimes(CMap_files, p53IDs)
 
 pdata[pert_type %in% "trt_sh", uniqueN(pert_iname)]
 pdata[pert_type %in% "trt_oe", uniqueN(pert_iname)]

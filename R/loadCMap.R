@@ -133,5 +133,4 @@ unzipCMapData = function(CMap_files) {
   R.utils::gunzip(CMap_files$sig_level5[2],
                   destname = unzipped,
                   remove = F, overwrite = F)
-  return(TRUE)
 }

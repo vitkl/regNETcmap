@@ -5,11 +5,11 @@
 \alias{anyGeneID2PerturbAnno}
 \title{Get Connectivity Map perturbation annotations for genes of interest, cell line and perturbation types and times}
 \usage{
-geneName2PerturbAnno(gene_names = "TP53", CMap_dirs,
-  is_touchstone = c("all", T, F), pert_types = c("trt_sh.cgs", "trt_sh",
-  "trt_sh.css"), pert_times = c("all"), cell_ids = c("all"))
+geneName2PerturbAnno(gene_names = "TP53", CMap_files,
+  is_touchstone = c("all", T, F), pert_types = c("trt_sh.cgs", "trt_oe"),
+  pert_times = c("all"), cell_ids = c("all"))
 
-anyGeneID2PerturbAnno(keys = "Q9NZL3", CMap_dirs, org.db = c("UniProt.ws",
+anyGeneID2PerturbAnno(keys = "Q9NZL3", CMap_files, org.db = c("UniProt.ws",
   "Homo.sapiens")[1], keytype = "UNIPROTKB", is_touchstone = c("all", T, F),
   pert_types = c("trt_sh.cgs", "trt_sh", "trt_sh.css"),
   pert_times = c("all"), cell_ids = c("all"))
@@ -17,21 +17,21 @@ anyGeneID2PerturbAnno(keys = "Q9NZL3", CMap_dirs, org.db = c("UniProt.ws",
 \arguments{
 \item{gene_names}{a character vector of HUGO gene names}
 
+\item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
+
 \item{is_touchstone}{logical, select only the perturbation data that is a part of the touchstone dataset (genes profiled across all 9 core cell lines)? Details: https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/}
 
-\item{pert_types}{a character vector of perturbation types, query for available perturbation types using \code{perturbTable(CMap_dirs, ~ pert_type)}}
+\item{pert_types}{a character vector of perturbation types, query for available perturbation types using \code{perturbTable(CMap_files, ~ pert_type)}}
 
-\item{pert_times}{a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_dirs, ~ pert_time)}}
+\item{pert_times}{a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_time)}}
 
-\item{cell_ids}{a character vector of cell line names, query for available cell line names using \code{perturbTable(CMap_dirs, ~ cell_id)}}
+\item{cell_ids}{a character vector of cell line names, query for available cell line names using \code{perturbTable(CMap_files, ~ cell_id)}}
 
 \item{keys}{a character vector of identifiers, check possible options for type of identifier by calling keytypes(org.db)}
 
 \item{org.db}{org.db of choice: Homo.sapiens or UniProt.ws::UniProt.ws(9606)}
 
 \item{keytype}{type of identifier used in \code{keys}}
-
-\item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
 }
 \value{
 data.table containing the perturbation details from the Connectivity map project
