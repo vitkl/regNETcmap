@@ -7,7 +7,7 @@
 readCMAP(PerturbAnno, CMap_files)
 }
 \arguments{
-\item{PerturbAnno}{a character vector of HUGO gene names}
+\item{PerturbAnno}{data.table containing the perturbation details from the Connectivity map project produced by \code{\link{geneName2PerturbAnno}}}
 
 \item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
 }

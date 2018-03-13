@@ -61,7 +61,7 @@ loadBIOMARTdatasets(): environment containing 2 object of class 'Mart', one for 
 attributesFiltersFromTo(): list containing 4 vector of either filters or attributes for each dataset
 }
 \description{
-findOrthologs(): map orthologous genes using ENSEMBL BioMART (\link[biomaRt]{getBM}) from one species to another species.
+findOrthologs(): map orthologous genes using ENSEMBL BioMART (\link[biomaRt]{getBM}) from one species to another species. This function retrieves ids by 500 at a time to decrease the load on ENSEMBL servers.
 
 findOrthologsHsMm(): map orthologous genes using ENSEMBL BioMART from human to mouse
 

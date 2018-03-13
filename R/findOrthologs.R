@@ -2,7 +2,7 @@
 ##' @rdname findOrthologs
 ##' @name findOrthologs
 ##' @author Vitalii Kleshchevnikov
-##' @description findOrthologs(): map orthologous genes using ENSEMBL BioMART (\link[biomaRt]{getBM}) from one species to another species.
+##' @description findOrthologs(): map orthologous genes using ENSEMBL BioMART (\link[biomaRt]{getBM}) from one species to another species. This function retrieves ids by 500 at a time to decrease the load on ENSEMBL servers.
 ##' @param datasets_FROM_TO environment containing "Mart" objects produced by \code{loadBIOMARTdatasets()}. It is convenient to specify datasets here rather than pre-loading. Full list of datasets in ENSEMBL BioMART: listDatasets("ensembl")
 ##' @param from_filters Filters (one or more) that should be used in the query in the "from" species database. A possible list of filters can be retrieved using \code{attributesFiltersFromTo(datasets_FROM_TO = loadBIOMARTdatasets())}.
 ##' @param from_values Values of the filter, e.g. vector of affy IDs in the "from" species database. If multiple filters are specified then the argument should be a list of vectors of which the position of each vector corresponds to the position of the filters in the filters argument. Please limit the number of values to less than 500.
@@ -27,30 +27,43 @@ findOrthologs = function(datasets_FROM_TO = loadBIOMARTdatasets(from = "hsapiens
   ensembl_from = datasets_FROM_TO$ensembl_from
   ensembl_to = datasets_FROM_TO$ensembl_to
 
-  from_whatever2gene_id = getBM(attributes = unique(c(from_filters, "ensembl_gene_id")),
-                                 filters = from_filters,
-                                 values = from_values,
-                                 mart = ensembl_from)
-  from_whatever2gene_id[,from_gene_id_name] = from_whatever2gene_id$ensembl_gene_id
-  from_whatever2gene_id$ensembl_gene_id = NULL
+  # calculate where groups of 500 start and end
+  n_from_values = length(from_values)
+  starts = seq(1, n_from_values, 500)
+  ends = starts + 499
+  ends[ends == max(ends)] = n_from_values
+  # download iteratively
+  to_gene_id2whatever = lapply(1:length(ends), function(n){
 
-  from2to = getBM(attributes = c("ensembl_gene_id", to_homolog_attribute),
-                      filters = "ensembl_gene_id",
-                      values = from_whatever2gene_id[,from_gene_id_name],
-                      mart = ensembl_from)
-  from2to[, from_gene_id_name] = from2to$ensembl_gene_id
-  from2to$ensembl_gene_id = NULL
+    from_values_temp = from_values[starts[n]:ends[n]]
+    from_whatever2gene_id = getBM(attributes = unique(c(from_filters, "ensembl_gene_id")),
+                                  filters = from_filters,
+                                  values = from_values_temp,
+                                  mart = ensembl_from)
+    from_whatever2gene_id[,from_gene_id_name] = from_whatever2gene_id$ensembl_gene_id
+    from_whatever2gene_id$ensembl_gene_id = NULL
 
-  to_gene_id2whatever = getBM(attributes = unique(c(to_attributes, "ensembl_gene_id")),
-                                 filters = "ensembl_gene_id",
-                                 values = from2to[, to_homolog_attribute],
-                                 mart = ensembl_to)
-  to_gene_id2whatever[, to_gene_id_name] = to_gene_id2whatever$ensembl_gene_id
-  to_gene_id2whatever$ensembl_gene_id = NULL
+    from2to = getBM(attributes = c("ensembl_gene_id", to_homolog_attribute),
+                    filters = "ensembl_gene_id",
+                    values = from_whatever2gene_id[,from_gene_id_name],
+                    mart = ensembl_from)
+    from2to[, from_gene_id_name] = from2to$ensembl_gene_id
+    from2to$ensembl_gene_id = NULL
 
-  to_gene_id2whatever = merge(x = to_gene_id2whatever, y = from2to, by.x = to_gene_id_name, by.y = to_homolog_attribute)
-  to_gene_id2whatever = merge(x = to_gene_id2whatever, y = from_whatever2gene_id, by.x = from_gene_id_name, by.y = from_gene_id_name)
+    to_gene_id2whatever = getBM(attributes = unique(c(to_attributes, "ensembl_gene_id")),
+                                filters = "ensembl_gene_id",
+                                values = from2to[, to_homolog_attribute],
+                                mart = ensembl_to)
+    to_gene_id2whatever[, to_gene_id_name] = to_gene_id2whatever$ensembl_gene_id
+    to_gene_id2whatever$ensembl_gene_id = NULL
 
+    to_gene_id2whatever = merge(x = to_gene_id2whatever, y = from2to, by.x = to_gene_id_name, by.y = to_homolog_attribute)
+    to_gene_id2whatever = merge(x = to_gene_id2whatever, y = from_whatever2gene_id, by.x = from_gene_id_name, by.y = from_gene_id_name)
+
+    to_gene_id2whatever
+  })
+  # combine results
+  to_gene_id2whatever = Reduce(rbind, to_gene_id2whatever)
   to_gene_id2whatever
 }
 
