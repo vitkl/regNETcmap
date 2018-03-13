@@ -3,7 +3,7 @@
 ##' @name readCMAP
 ##' @author Vitalii Kleshchevnikov
 ##' @description \code{readCMAP} reads Connectivity Map data given perturbation annotations for a set of HUGO gene names (or Entrez gene ID) including additional filtering by cell line, perturbation type (compound, shRNA, overexpression, e.g.) and time. Details \code{\link{geneName2PerturbAnno}}
-##' @param PerturbAnno a character vector of HUGO gene names
+##' @param PerturbAnno data.table containing the perturbation details from the Connectivity map project produced by \code{\link{geneName2PerturbAnno}}
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
 ##' @return object of class 'GCT' [package "cmapR"] with 7 slots containing z-score matrix, perturbation and feature details of the Connectivity map project
 ##' @export readCMAP

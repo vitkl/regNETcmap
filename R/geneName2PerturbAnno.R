@@ -16,7 +16,7 @@
 ##' @seealso \code{\link{openCellInfo}}, \code{\link{loadCMap}}, \code{\link{perturbTable}}
 geneName2PerturbAnno = function(gene_names = "TP53", CMap_files, is_touchstone = c("all", T, F), pert_types = c("trt_sh.cgs", "trt_oe"), pert_times = c("all"), cell_ids = c("all")) {
   pdata = openpData(CMap_files)[pert_type %in% pert_types]
-  if(length(gene_names) == 1) if(!gene_names == "all") pdata = pdata[pert_iname %in% gene_names]
+  if(!gene_names[1] == "all") pdata = pdata[pert_iname %in% gene_names]
   pdetails = openPerturbDetails(CMap_files)[,.(pert_id, pert_type, is_touchstone)][pert_type %in% pert_types]
   PerturbAnno = pdata[pdetails, on = c("pert_id", "pert_type"), nomatch = 0]
 
