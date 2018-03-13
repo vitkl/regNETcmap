@@ -4,7 +4,7 @@
 ##' @author Vitalii Kleshchevnikov
 ##' @description \code{geneName2PerturbAnno} retrieves perturbation annotations for a set of HUGO gene names (or Entrez gene ID) including additional filtering by cell line, perturbation type (compound, shRNA, overexpression, e.g.) and time
 ##' @details is_touchstone: A boolean indicating whether the corresponding signature or perturbagen is a member of the Touchstone dataset. Touchstone is a term applied to the subset of CMap perturbagens that are well-annotated and that were systematically profiled across the majority of the core set of 9 cell lines at standardized conditions. Because of these properties Touchstone dataset well-suited as a reference compendium against with to compare external queries.
-##' @param gene_names a character vector of HUGO gene names
+##' @param gene_names a character vector of HUGO gene names. Use \code{"all"} to select all perturbations.
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
 ##' @param is_touchstone logical, select only the perturbation data that is a part of the touchstone dataset (genes profiled across all 9 core cell lines)? Details: https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/
 ##' @param pert_types a character vector of perturbation types, query for available perturbation types using \code{perturbTable(CMap_files, ~ pert_type)}
@@ -15,7 +15,8 @@
 ##' @export geneName2PerturbAnno
 ##' @seealso \code{\link{openCellInfo}}, \code{\link{loadCMap}}, \code{\link{perturbTable}}
 geneName2PerturbAnno = function(gene_names = "TP53", CMap_files, is_touchstone = c("all", T, F), pert_types = c("trt_sh.cgs", "trt_oe"), pert_times = c("all"), cell_ids = c("all")) {
-  pdata = openpData(CMap_files)[pert_type %in% pert_types & pert_iname %in% gene_names]
+  pdata = openpData(CMap_files)[pert_type %in% pert_types]
+  if(length(gene_names) == 1) if(!gene_names == "all") pdata = pdata[pert_iname %in% gene_names]
   pdetails = openPerturbDetails(CMap_files)[,.(pert_id, pert_type, is_touchstone)][pert_type %in% pert_types]
   PerturbAnno = pdata[pdetails, on = c("pert_id", "pert_type"), nomatch = 0]
 

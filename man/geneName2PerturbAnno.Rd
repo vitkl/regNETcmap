@@ -15,7 +15,7 @@ anyGeneID2PerturbAnno(keys = "Q9NZL3", CMap_files, org.db = c("UniProt.ws",
   pert_times = c("all"), cell_ids = c("all"))
 }
 \arguments{
-\item{gene_names}{a character vector of HUGO gene names}
+\item{gene_names}{a character vector of HUGO gene names. Use \code{"all"} to select all perturbations.}
 
 \item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
 

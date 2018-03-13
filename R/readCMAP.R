@@ -5,8 +5,7 @@
 ##' @description \code{readCMAP} reads Connectivity Map data given perturbation annotations for a set of HUGO gene names (or Entrez gene ID) including additional filtering by cell line, perturbation type (compound, shRNA, overexpression, e.g.) and time. Details \code{\link{geneName2PerturbAnno}}
 ##' @param PerturbAnno a character vector of HUGO gene names
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
-##' @return data.table containing the perturbation details from the Connectivity map project
-##' @import data.table
+##' @return object of class 'GCT' [package "cmapR"] with 7 slots containing z-score matrix, perturbation and feature details of the Connectivity map project
 ##' @export readCMAP
 ##' @seealso \code{\link{openCellInfo}}, \code{\link{loadCMap}}, \code{\link{perturbTable}}
 ##' @examples
@@ -14,9 +13,8 @@
 ##' CMap_files = loadCMap(directory = "../regulatory_networks_by_cmap/data/cmap/")
 ##' p53IDs = geneName2PerturbAnno(CMap_files = CMap_files, is_touchstone = T, pert_types = "trt_sh.cgs")
 ##' CMAP = readCMAP(PerturbAnno = p53IDs, CMap_files = CMap_files)
-##' # read all knockdown perturbations (3GB)
-##' fdata = openFeatureData(CMap_files)
-##' allIDs = geneName2PerturbAnno(gene_names = unique(fdata$pr_gene_symbol), CMap_files = CMap_files, is_touchstone = T, pert_types = "trt_sh.cgs")
+##' # read all knockdown perturbations (3.4GB)
+##' allIDs = geneName2PerturbAnno(gene_names = "all", CMap_files = CMap_files, is_touchstone = T, pert_types = "trt_sh.cgs")
 ##' CMAP = readCMAP(PerturbAnno = allIDs, CMap_files = CMap_files)
 readCMAP = function(PerturbAnno,
                     CMap_files) {
