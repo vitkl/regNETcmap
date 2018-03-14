@@ -2,9 +2,9 @@
 ##' @rdname measureTrPhe
 ##' @name measureTrPhe
 ##' @author Vitalii Kleshchevnikov
-##' @description \code{measureTrPhe} idenfifies mutually exclusive transcriptional phenotypes in single cell data (normalised read counts, SingleCellExperiment)
+##' @description \code{measureTrPhe} idenfifies mutually exclusive transcriptional phenotypes in single cell data (normalised read counts, SingleCellExperiment): genes expressed in one cell type but not the other (or all other) using one-tailed Wilcox, KS or other differential expression tests
 ##' @param data object of SingleCellExperiment containing single cell data (normalised read counts, cells already assigned to clusters)
-##' @param method method for detecting differentially expressed genes. Currently only Wilcox test is implemented \link[stats]{wilcox.test}.
+##' @param method method for detecting differentially expressed genes. Currently only Wilcox and KS tests are implemented \link[stats]{wilcox.test}, \link[stats]{ks.test}.
 ##' @param mode compare clusters to each other (\code{"pairwise"}) or \code{"one_vs_all"}
 ##' @param cutoff FDR-corrected p-value cutoff
 ##' @param assays_matrix_name name of the matrix in \code{assays(data)} that stores normalised read counts
@@ -29,7 +29,7 @@
 ##' # get the list of column names
 ##' cnames = getcolproc(file_paths)
 ##' data = readEMTAB6153ProcData(path = "../regulatory_networks_by_cmap/data/organogenesis_scRNAseq", procFile = "normalisedCounts.tsv", procol = cnames)
-##' pVals = measureTrPhe(data, cutoff = 1)
+##' pVals = measureTrPhe(data, method = "wilcox", mode = c("pairwise", "one_vs_all")[1], cutoff = 1, assays_matrix_name = "norm_counts", colData_cluster_col = "clusters", pval_corr_method = "fdr", low_exprs_threshold = 0.1, low_exprs_cells = 6, n_cores = detectCores() - 1)
 ##' qplot(x = pVals$diff_median, y = -log10(pVals$pVals), geom = "bin2d", xlim = c(-1,50), ylim = c(-1, 300), bins = 150) + theme_light()
 measureTrPhe = function(data, method = "wilcox", mode = c("pairwise", "one_vs_all")[1], cutoff = 0.05, assays_matrix_name = "norm_counts", colData_cluster_col = "clusters", pval_corr_method = "fdr", low_exprs_threshold = 0.1, low_exprs_cells = 6, n_cores = detectCores() - 1){
   clusters = colData(data)[,colData_cluster_col]

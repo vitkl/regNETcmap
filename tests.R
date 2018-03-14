@@ -6,6 +6,7 @@ document()
 install()
 
 #devtools::install_github("cmap/cmapR")
+#devtools::install_github("vitkl/regNETcmap")
 #source("https://bioconductor.org/biocLite.R")
 #biocLite("rhdf5")
 library(regNETcmap)
