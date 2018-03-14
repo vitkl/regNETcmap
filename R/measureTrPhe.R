@@ -12,6 +12,7 @@
 ##' @param pval_corr_method multiple hypothesis p-value correction method. Details: \link[stats]{p.adjust} - method.
 ##' @param low_exprs_threshold threshold (normalised read count) below which gene doesn't qualify as being expressed in a cell
 ##' @param low_exprs_cells remove genes that are expressed at a level higher or equal \code{low_exprs_threshold} in fewer than \code{low_exprs_cells} cells at each between-cluster comparison
+##' @param n_cores number of cores to be used in parallel processing (over combinations of clusters). More details: \link[parallel]{parLapply}, \link[parallel]{makeCluster}, \link[parallel]{detectCores}
 ##' @return data.table containing the perturbation details from the Connectivity map project. Only one overexpression experiment per gene and condition is retained.
 ##' @import data.table
 ##' @import SingleCellExperiment
@@ -21,116 +22,133 @@
 ##' library(ArrayExpress)
 ##' library(SingleCellExperiment)
 ##' library(data.table)
+##' library(ggplot2)
 ##' file_paths = getAE("E-MTAB-6153", type = "processed", path = "../regulatory_networks_by_cmap/data/organogenesis_scRNAseq", local = T)
 ##' # keep only normalised counts
 ##' file_paths$processedFiles = file_paths$processedFiles[file_paths$processedFiles == "normalisedCounts.tsv"]
 ##' # get the list of column names
 ##' cnames = getcolproc(file_paths)
 ##' data = readEMTAB6153ProcData(path = "../regulatory_networks_by_cmap/data/organogenesis_scRNAseq", procFile = "normalisedCounts.tsv", procol = cnames)
-measureTrPhe = function(data, method = "wilcox", mode = c("pairwise", "one_vs_all")[1], cutoff = 0.05, assays_matrix_name = "norm_counts", colData_cluster_col = "clusters", pval_corr_method = "fdr", low_exprs_threshold = 0.1, low_exprs_cells = 6, cutoff2nd = 0.5){
+##' pVals = measureTrPhe(data, cutoff = 1)
+##' qplot(x = pVals$diff_median, y = -log10(pVals$pVals), geom = "bin2d", xlim = c(-1,50), ylim = c(-1, 300), bins = 150) + theme_light()
+measureTrPhe = function(data, method = "wilcox", mode = c("pairwise", "one_vs_all")[1], cutoff = 0.05, assays_matrix_name = "norm_counts", colData_cluster_col = "clusters", pval_corr_method = "fdr", low_exprs_threshold = 0.1, low_exprs_cells = 6, n_cores = detectCores() - 1){
   clusters = colData(data)[,colData_cluster_col]
   combinations = clusterCOMBS(clusters, mode)
   norm_counts = assays(data)[[assays_matrix_name]]
 
+  # set up parallel processing
+  # create cluster
+  cl <- makeCluster(n_cores)
+  # get library support needed to run the code
+  clusterEvalQ(cl, {library(regNETcmap)})
+  # put objects in place that might be needed for the code
+  clusterExport(cl, c("norm_counts", "combinations", "cutoff", "pval_corr_method", "low_exprs_threshold", "low_exprs_cells", "method"), envir=environment())
+  pVals = parLapply(cl, X = 1:nrow(combinations),
+                    fun = function(ind) {
+                      measureTrPheSingle(norm_counts = norm_counts, combinations = combinations,
+                                         combinations_ind = ind,
+                                         cutoff = cutoff, pval_corr_method = pval_corr_method,
+                                         low_exprs_threshold = low_exprs_threshold,
+                                         low_exprs_cells = low_exprs_cells,
+                                         method = method)
+                    })
+  # stop cluster
+  stopCluster(cl)
 
-  measureTrPheSingle(norm_counts, combinations, clusters, combinations_ind = 1,
-                     cutoff = cutoff, pval_corr_method = pval_corr_method,
-                     low_exprs_threshold = low_exprs_threshold, low_exprs_cells = low_exprs_cells,
-                     method = method, cutoff2nd = cutoff2nd)
-
-
-  microbenchmark::microbenchmark({p1 <- measureTrPheSingle(norm_counts, combinations, clusters, combinations_ind = 1,
-                                                           cutoff = cutoff, pval_corr_method = pval_corr_method,
-                                                           low_exprs_threshold = low_exprs_threshold, low_exprs_cells = low_exprs_cells,
-                                                           method = method, cutoff2nd = cutoff2nd)},
-                                 {p2 <- measureTrPheSingle(norm_counts, combinations, clusters, combinations_ind = 10,
-                                                           cutoff = cutoff, pval_corr_method = pval_corr_method,
-                                                           low_exprs_threshold = low_exprs_threshold, low_exprs_cells = low_exprs_cells,
-                                                           method = method, cutoff2nd = cutoff2nd)},
-                                 {p3 <- measureTrPheSingle(norm_counts, combinations, clusters, combinations_ind = 100,
-                                                           cutoff = cutoff, pval_corr_method = pval_corr_method,
-                                                           low_exprs_threshold = low_exprs_threshold, low_exprs_cells = low_exprs_cells,
-                                                           method = method, cutoff2nd = cutoff2nd)},
-                                 {p4 <- measureTrPheSingle(norm_counts, combinations, clusters, combinations_ind = 200,
-                                                           cutoff = cutoff, pval_corr_method = pval_corr_method,
-                                                           low_exprs_threshold = low_exprs_threshold, low_exprs_cells = low_exprs_cells,
-                                                           method = method, cutoff2nd = cutoff2nd)}, times = 5)
-
+  # combine results
+  pVals = Reduce(rbind, pVals)
+  # multiple testing correction - do for all 380 comparisons
+  pVals[, pVals_corr := p.adjust(pVals, method = pval_corr_method)]
+  pVals[, passed := pVals_corr < cutoff]
+  pVals
 }
 
 ##' @rdname measureTrPhe
 ##' @name measureTrPheSingle
 ##' @description \code{measureTrPheSingle}: idenfifies mutually exclusive transcriptional phenotypes for 2 clusters of single cells
 ##' @param clusters character vector, clusters (cell types) present in the data
-##' @param mode
+##' @param combinations data.table containing phenotype id (phenotypes) and which clusters are to be compared
+##' @param combinations_ind which combination should be analysed?
 ##' @return \code{measureTrPheSingle}: data.table containing phenotype id (phenotypes) and which genes are assigned to them
 ##' @import data.table
 ##' @export measureTrPheSingle
-measureTrPheSingle = function(norm_counts, combinations, clusters, combinations_ind = 1, cutoff = 0.05, pval_corr_method = "fdr", low_exprs_threshold = 1, low_exprs_cells = 6, method = c("wilcox","ks")[1], cutoff2nd = 0.5){
-  if(length(clusters) != ncol(norm_counts)) stop("measureTrPheSingle: length of vector \"clusters\" should be equal to the number of columns in the read count matrix")
-  #norm_counts_subset = norm_counts[, clusters %in% c(combinations[combinations_ind, phenotypes_cluster1],
-  #                                                   combinations[combinations_ind, phenotypes_cluster2])]
+measureTrPheSingle = function(norm_counts, combinations, combinations_ind = 1, cutoff = 0.05, pval_corr_method = "fdr", low_exprs_threshold = 1, low_exprs_cells = 6, method = c("wilcox","ks")[1]){
 
-  norm_counts_subset = norm_counts[, grepl(combinations[combinations_ind, phenotypes_cluster1],
-                                           colnames(norm_counts)) |
-                                     grepl(combinations[combinations_ind, phenotypes_cluster2],
-                                           colnames(norm_counts))]
+  if(combinations[combinations_ind, phenotypes_cluster1] == "all"){
+    phenotypes_cluster2 = combinations[combinations_ind, phenotypes_cluster2]
+    norm_counts_subset = norm_counts
+  } else if(combinations[combinations_ind, phenotypes_cluster2] == "all"){
+    phenotypes_cluster1 = combinations[combinations_ind, phenotypes_cluster1]
+    norm_counts_subset = norm_counts
+  } else {
+    phenotypes_cluster1 = combinations[combinations_ind, phenotypes_cluster1]
+    phenotypes_cluster2 = combinations[combinations_ind, phenotypes_cluster2]
+    norm_counts_subset = norm_counts[, grepl(phenotypes_cluster1, colnames(norm_counts)) |
+                                       grepl(phenotypes_cluster2, colnames(norm_counts))]
+  }
+
   # filter out genes that are not expressed in both of these clusters or are expressed in a few cells
-  rowsums = rowSums2(norm_counts_subset >= low_exprs_threshold)
+  rowsums = matrixStats::rowSums2(norm_counts_subset >= low_exprs_threshold)
   norm_counts_subset = norm_counts_subset[rowsums > low_exprs_cells,]
   if(method == "wilcox"){
-    #pVals <- apply(norm_counts_subset,
-    #               2, function(x){
-    #                 wilcox.test( x[clusters == combinations[combinations_ind, phenotypes_cluster1]],
-    #                              x[clusters == combinations[combinations_ind, phenotypes_cluster2]],
-    #                              alternative = "greater")$p.value} )
-    pVals <- apply(norm_counts_subset,
-                   1, function(x){
-                     wilcox.test( x[grepl(combinations[combinations_ind, phenotypes_cluster1],
-                                          colnames(norm_counts_subset))],
-                                  x[grepl(combinations[combinations_ind, phenotypes_cluster2],
-                                          colnames(norm_counts_subset))],
-                                  alternative = "greater")$p.value} )
+    if(combinations[combinations_ind, phenotypes_cluster1] == "all"){
+      pVals <- apply(norm_counts_subset,
+                     1, function(mat){
+                       x = mat[!grepl(phenotypes_cluster2, colnames(norm_counts_subset))]
+                       y = mat[grepl(phenotypes_cluster2, colnames(norm_counts_subset))]
+                       w = wilcox.test(x, y, alternative = "greater")
+                       c(w$p.value, w$statistic, median(x) - median(y))} )
+    } else if(combinations[combinations_ind, phenotypes_cluster2] == "all"){
+      pVals <- apply(norm_counts_subset,
+                     1, function(mat){
+                       x = mat[grepl(phenotypes_cluster1, colnames(norm_counts_subset))]
+                       y = mat[!grepl(phenotypes_cluster1, colnames(norm_counts_subset))]
+                       w = wilcox.test(x, y, alternative = "greater")
+                       c(w$p.value, w$statistic, median(x) - median(y))} )
+    } else {
+      pVals <- apply(norm_counts_subset,
+                     1, function(mat){
+                       x = mat[grepl(phenotypes_cluster1, colnames(norm_counts_subset))]
+                       y = mat[grepl(phenotypes_cluster2, colnames(norm_counts_subset))]
+                       w = wilcox.test(x, y, alternative = "greater")
+                       c(w$p.value, w$statistic, median(x) - median(y))} )
+    }
   }
   if(method == "ks"){
-    pVals <- apply(norm_counts_subset,
-                   1, function(x){
-                     ks.test( x[grepl(combinations[combinations_ind, phenotypes_cluster1],
-                                      colnames(norm_counts_subset))],
-                              x[grepl(combinations[combinations_ind, phenotypes_cluster2],
-                                      colnames(norm_counts_subset))],
-                              alternative = "less")$p.value} )
-  }
-
-  # multiple testing correction - do for all 380 comparisons
-  pVals_corr <- p.adjust(pVals, method = pval_corr_method)
-  passed = pVals_corr < cutoff
-  if(sum(passed) == 0){
-    warning(paste0(combinations[combinations_ind, phenotypes], " has no genes below fdr threshold of ", cutoff))
-    #warning(paste0(combinations[combinations_ind, phenotypes], " has no genes below fdr threshold of ", cutoff,", choosing genes using uncorrected p-value < ",cutoff2nd))
-    passed = pVals < cutoff2nd
-    if(sum(passed) > 0){
-      phenotype2gene = data.table(phenotypes = combinations[combinations_ind, phenotypes],
-                                  genes = NA,# names(pVals)[passed],
-                                  pVals = NA)# pVals[passed])
+    if(combinations[combinations_ind, phenotypes_cluster1] == "all"){
+      pVals <- apply(norm_counts_subset,
+                     1, function(mat){
+                       x = mat[!grepl(phenotypes_cluster2, colnames(norm_counts_subset))]
+                       y = mat[grepl(phenotypes_cluster2, colnames(norm_counts_subset))]
+                       w = ks.test(x, y, alternative = "less")
+                       c(w$p.value, w$statistic, median(x) - median(y))} )
+    } else if(combinations[combinations_ind, phenotypes_cluster2] == "all"){
+      pVals <- apply(norm_counts_subset,
+                     1, function(mat){
+                       x = mat[grepl(phenotypes_cluster1, colnames(norm_counts_subset))]
+                       y = mat[!grepl(phenotypes_cluster1, colnames(norm_counts_subset))]
+                       w = ks.test(x, y, alternative = "less")
+                       c(w$p.value, w$statistic, median(x) - median(y))} )
     } else {
-      phenotype2gene = data.table(phenotypes = combinations[combinations_ind, phenotypes],
-                                  genes = NA,
-                                  pVals = NA)
+      pVals <- apply(norm_counts_subset,
+                     1, function(mat){
+                       x = mat[grepl(phenotypes_cluster1, colnames(norm_counts_subset))]
+                       y = mat[grepl(phenotypes_cluster2, colnames(norm_counts_subset))]
+                       w = ks.test(x, y, alternative = "less")
+                       c(w$p.value, w$statistic, median(x) - median(y))} )
     }
-  } else {
-    phenotype2gene = data.table(phenotypes = combinations[combinations_ind, phenotypes],
-                                genes = names(pVals_corr)[passed],
-                                pVals = pVals_corr[passed])
   }
-  phenotype2gene
+  data.table(phenotypes = combinations[combinations_ind, phenotypes],
+             genes = colnames(pVals),
+             pVals = pVals[1,],
+             statistic = pVals[2,],
+             diff_median = pVals[3,])
 }
 
 ##' @rdname measureTrPhe
 ##' @name clusterCOMBS
 ##' @description \code{clusterCOMBS}: produces a data.table specifying all combinations of clusters for differential expression analysis.
 ##' @param clusters character vector, clusters (cell types) present in the data
-##' @param mode
 ##' @return \code{clusterCOMBS}: data.table containing phenotype id (phenotypes) and which clusters are to be compared
 ##' @import data.table
 ##' @export clusterCOMBS

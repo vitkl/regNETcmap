@@ -62,3 +62,31 @@ CMAP = readCMAP(PerturbAnno = allIDs, CMap_files = CMap_files)
 CMAPsub = readCMAPsubset(is_touchstone = T, pert_types = "trt_sh.cgs",
                          pert_times = 96, cell_ids = "A375", CMap_files)
 perturbTable(pdata = as.data.table(CMAPsub@cdesc))
+
+norm_counts = assays(data)$norm_counts
+norm_counts[norm_counts < 1] = NA
+row_var = rowVars(norm_counts, na.rm = T)
+hist(log10(norm_counts[order(row_var, decreasing = T)[1],]), main = 1)
+
+for (i in 1:100) {
+  hist(log10(norm_counts[order(row_var, decreasing = T)[i],]), main = i)
+  Sys.sleep(1)
+}
+
+
+# cluster means
+norm_counts = assays(data)$norm_counts
+norm_counts_clusters = unique(clusters)
+row_med = sapply(norm_counts_clusters, function(cluster, norm_counts) {
+  rowMedians(norm_counts[,grepl(cluster,colnames(norm_counts))])
+}, norm_counts)
+row_med = row_med[rowSums2(row_med != 0) > 1,]
+row_var = rowVars(row_med, na.rm = T)
+hist(log10(row_med[order(row_var, decreasing = T)[1],]), main = 1)
+plot(density(log10(row_med[order(row_var, decreasing = T)[1],])), main = 1)
+
+for (i in 1:100) {
+  #hist(log10(row_med[order(row_var, decreasing = T)[i],]), main = i)
+  plot(density(log10(row_med[order(row_var, decreasing = T)[i],])), main = i)
+  Sys.sleep(1)
+}

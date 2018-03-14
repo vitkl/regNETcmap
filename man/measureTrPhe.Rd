@@ -9,11 +9,12 @@
 measureTrPhe(data, method = "wilcox", mode = c("pairwise", "one_vs_all")[1],
   cutoff = 0.05, assays_matrix_name = "norm_counts",
   colData_cluster_col = "clusters", pval_corr_method = "fdr",
-  low_exprs_threshold = 0.1, low_exprs_cells = 6, cutoff2nd = 0.5)
+  low_exprs_threshold = 0.1, low_exprs_cells = 6, n_cores = detectCores()
+  - 1)
 
-measureTrPheSingle(norm_counts, combinations, clusters, combinations_ind = 1,
+measureTrPheSingle(norm_counts, combinations, combinations_ind = 1,
   cutoff = 0.05, pval_corr_method = "fdr", low_exprs_threshold = 1,
-  low_exprs_cells = 6, method = c("wilcox", "ks")[1], cutoff2nd = 0.5)
+  low_exprs_cells = 6, method = c("wilcox", "ks")[1])
 
 clusterCOMBS(clusters, mode = c("pairwise", "one_vs_all")[1])
 }
@@ -35,6 +36,12 @@ clusterCOMBS(clusters, mode = c("pairwise", "one_vs_all")[1])
 \item{low_exprs_threshold}{threshold (normalised read count) below which gene doesn't qualify as being expressed in a cell}
 
 \item{low_exprs_cells}{remove genes that are expressed at a level higher or equal \code{low_exprs_threshold} in fewer than \code{low_exprs_cells} cells at each between-cluster comparison}
+
+\item{n_cores}{number of cores to be used in parallel processing (over combinations of clusters). More details: \link[parallel]{parLapply}, \link[parallel]{makeCluster}, \link[parallel]{detectCores}}
+
+\item{combinations}{data.table containing phenotype id (phenotypes) and which clusters are to be compared}
+
+\item{combinations_ind}{which combination should be analysed?}
 
 \item{clusters}{character vector, clusters (cell types) present in the data}
 
@@ -58,12 +65,15 @@ data.table containing the perturbation details from the Connectivity map project
 library(ArrayExpress)
 library(SingleCellExperiment)
 library(data.table)
+library(ggplot2)
 file_paths = getAE("E-MTAB-6153", type = "processed", path = "../regulatory_networks_by_cmap/data/organogenesis_scRNAseq", local = T)
 # keep only normalised counts
 file_paths$processedFiles = file_paths$processedFiles[file_paths$processedFiles == "normalisedCounts.tsv"]
 # get the list of column names
 cnames = getcolproc(file_paths)
 data = readEMTAB6153ProcData(path = "../regulatory_networks_by_cmap/data/organogenesis_scRNAseq", procFile = "normalisedCounts.tsv", procol = cnames)
+pVals = measureTrPhe(data, cutoff = 1)
+qplot(x = pVals$diff_median, y = -log10(pVals$pVals), geom = "bin2d", xlim = c(-1,50), ylim = c(-1, 300), bins = 150) + theme_light()
 }
 \author{
 Vitalii Kleshchevnikov
