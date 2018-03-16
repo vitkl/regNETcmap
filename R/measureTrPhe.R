@@ -3,7 +3,7 @@
 ##' @name measureTrPhe
 ##' @author Vitalii Kleshchevnikov
 ##' @description \code{measureTrPhe} idenfifies mutually exclusive transcriptional phenotypes in single cell data (normalised read counts, SingleCellExperiment): genes expressed in one cell type but not the other (or all other) using one-tailed Wilcox, KS or other differential expression tests
-##' @param data object of SingleCellExperiment containing single cell data (normalised read counts, cells already assigned to clusters)
+##' @param data object of class SingleCellExperiment containing single cell data (normalised read counts, cells already assigned to clusters)
 ##' @param method method for detecting differentially expressed genes. Currently only Wilcox and KS tests are implemented \link[stats]{wilcox.test}, \link[stats]{ks.test}.
 ##' @param mode compare clusters to each other (\code{"pairwise"}) or \code{"one_vs_all"}
 ##' @param cutoff FDR-corrected p-value cutoff
@@ -13,7 +13,7 @@
 ##' @param low_exprs_threshold threshold (normalised read count) below which gene doesn't qualify as being expressed in a cell
 ##' @param low_exprs_cells remove genes that are expressed at a level higher or equal \code{low_exprs_threshold} in fewer than \code{low_exprs_cells} cells at each between-cluster comparison
 ##' @param n_cores number of cores to be used in parallel processing (over combinations of clusters). More details: \link[parallel]{parLapply}, \link[parallel]{makeCluster}, \link[parallel]{detectCores}
-##' @return data.table containing the perturbation details from the Connectivity map project. Only one overexpression experiment per gene and condition is retained.
+##' @return \code{measureTrPhe}: data.table containing data.table containing phenotype id (phenotypes), which genes are assigned to them, test statistic and difference in medians between clusters
 ##' @import data.table
 ##' @import SingleCellExperiment
 ##' @import parallel
@@ -31,7 +31,7 @@
 ##' data = readEMTAB6153ProcData(path = "../regulatory_networks_by_cmap/data/organogenesis_scRNAseq", procFile = "normalisedCounts.tsv", procol = cnames)
 ##' pVals = measureTrPhe(data, method = "wilcox", mode = c("pairwise", "one_vs_all")[1], cutoff = 1, assays_matrix_name = "norm_counts", colData_cluster_col = "clusters", pval_corr_method = "fdr", low_exprs_threshold = 0.1, low_exprs_cells = 6, n_cores = detectCores() - 1)
 ##' qplot(x = pVals$diff_median, y = -log10(pVals$pVals), geom = "bin2d", xlim = c(-1,50), ylim = c(-1, 300), bins = 150) + theme_light()
-measureTrPhe = function(data, method = "wilcox", mode = c("pairwise", "one_vs_all")[1], cutoff = 0.05, assays_matrix_name = "norm_counts", colData_cluster_col = "clusters", pval_corr_method = "fdr", low_exprs_threshold = 0.1, low_exprs_cells = 6, n_cores = detectCores() - 1){
+measureTrPhe = function(data, method = c("wilcox", "ks")[1], mode = c("pairwise", "one_vs_all")[1], cutoff = 1, assays_matrix_name = "norm_counts", colData_cluster_col = "clusters", pval_corr_method = "fdr", low_exprs_threshold = 0.1, low_exprs_cells = 6, n_cores = detectCores() - 1){
   clusters = colData(data)[,colData_cluster_col]
   combinations = clusterCOMBS(clusters, mode)
   norm_counts = assays(data)[[assays_matrix_name]]
@@ -69,7 +69,7 @@ measureTrPhe = function(data, method = "wilcox", mode = c("pairwise", "one_vs_al
 ##' @param clusters character vector, clusters (cell types) present in the data
 ##' @param combinations data.table containing phenotype id (phenotypes) and which clusters are to be compared
 ##' @param combinations_ind which combination should be analysed?
-##' @return \code{measureTrPheSingle}: data.table containing phenotype id (phenotypes) and which genes are assigned to them
+##' @return \code{measureTrPheSingle}: data.table containing phenotype id (phenotypes), which genes are assigned to them, test statistic and difference in medians between clusters
 ##' @import data.table
 ##' @export measureTrPheSingle
 measureTrPheSingle = function(norm_counts, combinations, combinations_ind = 1, cutoff = 0.05, pval_corr_method = "fdr", low_exprs_threshold = 1, low_exprs_cells = 6, method = c("wilcox","ks")[1]){
@@ -177,4 +177,24 @@ clusterCOMBS = function(clusters, mode = c("pairwise", "one_vs_all")[1]) {
   combinations[, phenotypes_cluster2 := unlist(tstrsplit(phenotypes, "_NOT"))[2], by = phenotypes]
   # setorder(combinations, iterations_cluster1, iterations_cluster2)
   combinations
+}
+
+##' @rdname measureTrPhe
+##' @name countNonZeros
+##' @description \code{countNonZeros}: count non-zero cells per gene and per cluster
+##' @return \code{countNonZeros}: data.table containing the number of cells, number of non-zero cells per each gene and cluster
+##' @import data.table
+##' @export countNonZeros
+countNonZeros = function(data, low_exprs_threshold = 0.1, colData_cluster_col = "clusters", assays_matrix_name = "norm_counts") {
+  clusters = unique(colData(data)[,colData_cluster_col])
+  norm_counts = assays(data)[[assays_matrix_name]]
+  n_nonzero = lapply(clusters, function(cluster){
+    norm_counts_subset = norm_counts[, grepl(cluster, colnames(norm_counts))]
+    rowsums = matrixStats::rowSums2(norm_counts_subset >= low_exprs_threshold)
+    data.table(genes = rownames(norm_counts_subset),
+               n_nonzero = rowsums,
+               cluster = cluster,
+               cells_per_cluster = ncol(norm_counts_subset))
+  })
+  Reduce(rbind, n_nonzero)
 }

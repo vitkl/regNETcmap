@@ -25,10 +25,11 @@ keep1OE = function(PerturbAnno, keep_one_oe = c("one", "other", "all")[1], pert_
     } else if(keep_one_oe == "other") {
       duplicated_IDs = duplicated_IDs[sig_id != pert_id_in_sig_id]
     } else message("keep_one_oe argument can be only \"one\", \"other\", \"all\". No perturbation filtered")
+    duplicated_IDs$pert_id_in_sig_id = NULL
+    # add duplicated to all
+    PerturbAnno = PerturbAnno[!pert_iname %in% names(duplicated)]
+    PerturbAnno = rbind(PerturbAnno, duplicated_IDs)
   }
-  duplicated_IDs$pert_id_in_sig_id = NULL
-  # add duplicated to all
-  PerturbAnno = PerturbAnno[!pert_iname %in% names(duplicated)]
-  PerturbAnno = rbind(PerturbAnno, duplicated_IDs)
+
   PerturbAnno
 }

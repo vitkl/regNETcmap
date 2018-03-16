@@ -6,7 +6,8 @@
 \usage{
 readCMAPsubset(is_touchstone = c("all", T, F)[2],
   pert_types = c("trt_sh.cgs", "trt_oe"), pert_times = c("all"),
-  cell_ids = c("all"), CMap_files)
+  cell_ids = c("all"), CMap_files, gene_names = "all",
+  keep_one_oe = c("one", "other", "all")[1])
 }
 \arguments{
 \item{is_touchstone}{logical, select only the perturbation data that is a part of the touchstone dataset (genes profiled across all 9 core cell lines)? Details: https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/}
@@ -18,6 +19,10 @@ readCMAPsubset(is_touchstone = c("all", T, F)[2],
 \item{cell_ids}{a character vector of cell line names, query for available cell line names using \code{perturbTable(CMap_files, ~ cell_id)}}
 
 \item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
+
+\item{gene_names}{a character vector of HUGO gene names. Use \code{"all"} to select all perturbations.}
+
+\item{keep_one_oe}{keep only one overexpression experiment per gene and condition. Applicable only when \code{pert_types = "trt_oe"}. Perturbations where sig_id matches pert_id are retained ("one"). To invert the selection use "other". To select all use "all"}
 }
 \value{
 object of class 'GCT' [package "cmapR"] with 7 slots containing z-score matrix, perturbation and feature details of the Connectivity map project

@@ -4,10 +4,11 @@
 \alias{measureTrPhe}
 \alias{measureTrPheSingle}
 \alias{clusterCOMBS}
+\alias{countNonZeros}
 \title{Measuring mutually exclusive transcriptional phenotypes}
 \usage{
-measureTrPhe(data, method = "wilcox", mode = c("pairwise", "one_vs_all")[1],
-  cutoff = 0.05, assays_matrix_name = "norm_counts",
+measureTrPhe(data, method = c("wilcox", "ks")[1], mode = c("pairwise",
+  "one_vs_all")[1], cutoff = 1, assays_matrix_name = "norm_counts",
   colData_cluster_col = "clusters", pval_corr_method = "fdr",
   low_exprs_threshold = 0.1, low_exprs_cells = 6, n_cores = detectCores()
   - 1)
@@ -17,11 +18,14 @@ measureTrPheSingle(norm_counts, combinations, combinations_ind = 1,
   low_exprs_cells = 6, method = c("wilcox", "ks")[1])
 
 clusterCOMBS(clusters, mode = c("pairwise", "one_vs_all")[1])
+
+countNonZeros(data, low_exprs_threshold = 0.1,
+  colData_cluster_col = "clusters", assays_matrix_name = "norm_counts")
 }
 \arguments{
-\item{data}{object of SingleCellExperiment containing single cell data (normalised read counts, cells already assigned to clusters)}
+\item{data}{object of class SingleCellExperiment containing single cell data (normalised read counts, cells already assigned to clusters)}
 
-\item{method}{method for detecting differentially expressed genes. Currently only Wilcox test is implemented \link[stats]{wilcox.test}.}
+\item{method}{method for detecting differentially expressed genes. Currently only Wilcox and KS tests are implemented \link[stats]{wilcox.test}, \link[stats]{ks.test}.}
 
 \item{mode}{compare clusters to each other (\code{"pairwise"}) or \code{"one_vs_all"}}
 
@@ -48,18 +52,22 @@ clusterCOMBS(clusters, mode = c("pairwise", "one_vs_all")[1])
 \item{clusters}{character vector, clusters (cell types) present in the data}
 }
 \value{
-data.table containing the perturbation details from the Connectivity map project. Only one overexpression experiment per gene and condition is retained.
+\code{measureTrPhe}: data.table containing data.table containing phenotype id (phenotypes), which genes are assigned to them, test statistic and difference in medians between clusters
 
-\code{measureTrPheSingle}: data.table containing phenotype id (phenotypes) and which genes are assigned to them
+\code{measureTrPheSingle}: data.table containing phenotype id (phenotypes), which genes are assigned to them, test statistic and difference in medians between clusters
 
 \code{clusterCOMBS}: data.table containing phenotype id (phenotypes) and which clusters are to be compared
+
+\code{countNonZeros}: data.table containing the number of cells, number of non-zero cells per each gene and cluster
 }
 \description{
-\code{measureTrPhe} idenfifies mutually exclusive transcriptional phenotypes in single cell data (normalised read counts, SingleCellExperiment)
+\code{measureTrPhe} idenfifies mutually exclusive transcriptional phenotypes in single cell data (normalised read counts, SingleCellExperiment): genes expressed in one cell type but not the other (or all other) using one-tailed Wilcox, KS or other differential expression tests
 
 \code{measureTrPheSingle}: idenfifies mutually exclusive transcriptional phenotypes for 2 clusters of single cells
 
 \code{clusterCOMBS}: produces a data.table specifying all combinations of clusters for differential expression analysis.
+
+\code{countNonZeros}: count non-zero cells per gene and per cluster
 }
 \examples{
 library(ArrayExpress)
@@ -72,7 +80,7 @@ file_paths$processedFiles = file_paths$processedFiles[file_paths$processedFiles 
 # get the list of column names
 cnames = getcolproc(file_paths)
 data = readEMTAB6153ProcData(path = "../regulatory_networks_by_cmap/data/organogenesis_scRNAseq", procFile = "normalisedCounts.tsv", procol = cnames)
-pVals = measureTrPhe(data, cutoff = 1)
+pVals = measureTrPhe(data, method = "wilcox", mode = c("pairwise", "one_vs_all")[1], cutoff = 1, assays_matrix_name = "norm_counts", colData_cluster_col = "clusters", pval_corr_method = "fdr", low_exprs_threshold = 0.1, low_exprs_cells = 6, n_cores = detectCores() - 1)
 qplot(x = pVals$diff_median, y = -log10(pVals$pVals), geom = "bin2d", xlim = c(-1,50), ylim = c(-1, 300), bins = 150) + theme_light()
 }
 \author{
