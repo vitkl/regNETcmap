@@ -9,7 +9,7 @@
 regFromCMAP(cmap, gene_sets, gene_set_id_col = "phenotypes",
   gene_id_col = "entrezgene", method = c("ks", "wilcox", "GSEA")[1],
   GSEA_weighting = 1, cutoff = 1, pval_corr_method = "fdr",
-  n_cores = detectCores() - 1)
+  renormalise = F, n_cores = detectCores() - 1)
 
 regFromCMAPSingle(cmap_mat, gene_sets, gene_set_name, method = c("ks",
   "wilcox", "GSEA")[1], GSEA_weighting = 1, alternative = c("less",
@@ -21,8 +21,9 @@ regFromCMAPmcell(CMap_files, cell_ids = c("A375", "A549", "HA1E", "HCC515",
   max_cell_lines = 9, gene_sets, gene_set_id_col = "phenotypes",
   gene_id_col = "entrezgene", method = c("ks", "wilcox", "GSEA")[1],
   GSEA_weighting = 1, keep_one_oe = c("one", "other", "all")[1],
-  cutoff = 0.05, pval_corr_method = "fdr", n_cores = detectCores() - 1,
-  gene_names = c("all", unique(gene_sets$hgnc_symbol)[3:22])[1])
+  cutoff = 0.05, pval_corr_method = "fdr", renormalise = F,
+  n_cores = detectCores() - 1, gene_names = c("all",
+  unique(gene_sets$hgnc_symbol)[3:22])[1])
 }
 \arguments{
 \item{cmap}{object of class 'GCT' [package "cmapR"] with 7 slots containing z-score matrix, perturbation and feature details of the Connectivity map project. Returned by \code{\link{readCMAP}} or \code{\link{readCMAPsubset}}}
@@ -40,6 +41,8 @@ regFromCMAPmcell(CMap_files, cell_ids = c("A375", "A549", "HA1E", "HCC515",
 \item{cutoff}{FDR-corrected p-value cutoff}
 
 \item{pval_corr_method}{multiple hypothesis p-value correction method. Details: \link[stats]{p.adjust} - method.}
+
+\item{renormalise}{renormalise z-scores for a Connectivity map subset being analysed. Z-score = (X-\link[stats]{median}(X)) / (\link[stats]{mad}(X)*1.4826)}
 
 \item{n_cores}{number of cores to be used in parallel processing (over combinations of clusters). More details: \link[parallel]{parLapply}, \link[parallel]{makeCluster}, \link[parallel]{detectCores}}
 

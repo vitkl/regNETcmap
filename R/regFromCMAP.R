@@ -11,6 +11,7 @@
 ##' @param GSEA_weighting Weighting of ranking/correlations, see \link[gsEasy]{gset}, https://cran.r-project.org/web/packages/gsEasy/vignettes/gsEasy-guide.html or Subramanian et. al 2005.
 ##' @param cutoff FDR-corrected p-value cutoff
 ##' @param pval_corr_method multiple hypothesis p-value correction method. Details: \link[stats]{p.adjust} - method.
+##' @param renormalise renormalise z-scores for a Connectivity map subset being analysed. Z-score = (X-\link[stats]{median}(X)) / (\link[stats]{mad}(X)*1.4826)
 ##' @param n_cores number of cores to be used in parallel processing (over combinations of clusters). More details: \link[parallel]{parLapply}, \link[parallel]{makeCluster}, \link[parallel]{detectCores}
 ##' @return data.table containing gene set id, which genes may regulate this set, test statistic and difference in medians between each gene set and all other genes
 ##' @import data.table
@@ -44,7 +45,7 @@
 ##'     method = "ks", cutoff = 1, pval_corr_method = "fdr",
 ##'     n_cores = detectCores() - 1)
 ##' qplot(x = pVals_reg$diff_median, y = -log10(pVals_reg$pVals), geom = "bin2d", bins = 150) + theme_light()
-regFromCMAP = function(cmap, gene_sets, gene_set_id_col = "phenotypes", gene_id_col = "entrezgene", method =  c("ks", "wilcox", "GSEA")[1], GSEA_weighting = 1, cutoff = 1, pval_corr_method = "fdr", n_cores = detectCores() - 1){
+regFromCMAP = function(cmap, gene_sets, gene_set_id_col = "phenotypes", gene_id_col = "entrezgene", method =  c("ks", "wilcox", "GSEA")[1], GSEA_weighting = 1, cutoff = 1, pval_corr_method = "fdr", renormalise = F, n_cores = detectCores() - 1){
   gene_sets = unique(gene_sets[, c(gene_set_id_col, gene_id_col), with = F])
   setnames(gene_sets, c(gene_set_id_col, gene_id_col), c("gene_set_id", "gene_id"))
   setorder(gene_sets, gene_set_id)
@@ -52,6 +53,8 @@ regFromCMAP = function(cmap, gene_sets, gene_set_id_col = "phenotypes", gene_id_
   gene_sets = gene_sets[gene_id != "" | !is.na(gene_id) | gene_id != "NA"]
   # extract data matrix
   cmap_mat = cmap@mat
+  # renormalise:
+  if(renormalise) cmap_mat = t(apply(cmap_mat, 1, function(X) (X-median(X)) / (mad(X)*1.4826)))
   # extract column description
   cmap_cdesc = as.data.table(cmap@cdesc)
 
@@ -229,6 +232,7 @@ regFromCMAPmcell = function(CMap_files, cell_ids = c("A375", "A549", "HA1E",
                             GSEA_weighting = 1,
                             keep_one_oe = c("one", "other", "all")[1],
                             cutoff = 0.05, pval_corr_method = "fdr",
+                            renormalise = F,
                             n_cores = detectCores() - 1,
                             gene_names = c("all", unique(gene_sets$hgnc_symbol)[3:22])[1]) {
   if(!min_cell_lines <= max_cell_lines) stop("regFromCMAPmcell: min_cell_lines should be smaller or equal to max_cell_lines")
@@ -248,6 +252,7 @@ regFromCMAPmcell = function(CMap_files, cell_ids = c("A375", "A549", "HA1E",
                   gene_set_id_col = gene_set_id_col, gene_id_col = gene_id_col,
                   method = method, GSEA_weighting = GSEA_weighting,
                   cutoff = 1, pval_corr_method = pval_corr_method,
+                  renormalise = renormalise,
                   n_cores = n_cores)
     }, cell_line)
     # combine results
