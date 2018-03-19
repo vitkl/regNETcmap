@@ -9,7 +9,9 @@
 regFromCMAP(cmap, gene_sets, gene_set_id_col = "phenotypes",
   gene_id_col = "entrezgene", method = c("ks", "wilcox", "GSEA")[1],
   GSEA_weighting = 1, cutoff = 1, pval_corr_method = "fdr",
-  renormalise = F, n_cores = detectCores() - 1)
+  renormalise = F, n_cores = detectCores() - 1, clustermq = F,
+  clustermq_seed = 128965, clustermq_memory = 2000,
+  clustermq_job_size = 10)
 
 regFromCMAPSingle(cmap_mat, gene_sets, gene_set_name, method = c("ks",
   "wilcox", "GSEA")[1], GSEA_weighting = 1, alternative = c("less",
@@ -45,6 +47,14 @@ regFromCMAPmcell(CMap_files, cell_ids = c("A375", "A549", "HA1E", "HCC515",
 \item{renormalise}{renormalise z-scores for a Connectivity map subset being analysed. Z-score = (X-\link[stats]{median}(X)) / (\link[stats]{mad}(X)*1.4826)}
 
 \item{n_cores}{number of cores to be used in parallel processing (over combinations of clusters). More details: \link[parallel]{parLapply}, \link[parallel]{makeCluster}, \link[parallel]{detectCores}}
+
+\item{clustermq}{Use clustermq LSF job scheduler (TRUE) as an alternative to parLapply (FALSE). Details: \link[clustermq]{Q}}
+
+\item{clustermq_seed}{When using clustermq: Seed for random number generation.}
+
+\item{clustermq_memory}{When using clustermq: memory requested for each job}
+
+\item{clustermq_job_size}{When using clustermq: The number of function calls per job}
 
 \item{cmap_mat}{Connectivity map data matrix (\code{cmap@mat})}
 

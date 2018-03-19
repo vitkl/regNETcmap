@@ -15,6 +15,7 @@
 ##' @seealso \code{\link{openCellInfo}}, \code{\link{loadCMap}}, \code{\link{perturbTable}}
 ##' @examples
 ##' # read all knockdown perturbations (3.4GB)
+##' library(regNETcmap)
 ##' CMap_files = loadCMap(directory = "../regulatory_networks_by_cmap/data/cmap/")
 ##' allIDs = geneName2PerturbAnno(gene_names = "all", CMap_files = CMap_files, is_touchstone = T, pert_types = "trt_sh.cgs")
 ##' perturbTable(pdata = allIDs)
@@ -30,7 +31,7 @@ readCMAPsubset = function(is_touchstone = c("all", T, F)[2],
   allIDs = geneName2PerturbAnno(gene_names = gene_names, CMap_files,
                                 is_touchstone = is_touchstone, pert_types = pert_types,
                                 pert_times = pert_times, cell_ids = cell_ids)
-  if(pert_types == "trt_oe") {
+  if(length(pert_types) == 1 & pert_types[1] == "trt_oe") {
     allIDs = keep1OE(allIDs, keep_one_oe = keep_one_oe, pert_types = "trt_oe", CMap_files)
   }
   readCMAP(PerturbAnno = allIDs, CMap_files = CMap_files)

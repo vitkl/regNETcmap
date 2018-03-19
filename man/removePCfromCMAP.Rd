@@ -4,7 +4,7 @@
 \alias{removePCfromCMAP}
 \title{Calculate and remove principal components from Connectivity map data}
 \usage{
-removePCfromCMAP(CMap_files, keep_PCs = "all", return_PCs = T,
+removePCfromCMAP(CMap_files, remove_PCs = "none", return_PCs = T,
   return_CMAP = T, save_CMAP = F, pert_types = c("trt_sh.cgs", "trt_oe",
   "trt_cp", "trt_lig", "trt_oe.mut", "trt_xpr", "trt_sh.css", "ctl_vehicle.cns",
   "ctl_vector.cns", "ctl_untrt.cns"))
@@ -12,7 +12,7 @@ removePCfromCMAP(CMap_files, keep_PCs = "all", return_PCs = T,
 \arguments{
 \item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
 
-\item{keep_PCs}{integer, indexes - which principal components to keep}
+\item{remove_PCs}{integer or character, indexes - which principal components to remove. "none" to keep all PCs}
 
 \item{return_PCs}{logical, return the output of \link[base]{svd} decomposition}
 
@@ -27,4 +27,8 @@ removePCfromCMAP(CMap_files, keep_PCs = "all", return_PCs = T,
 }
 \description{
 \code{removePCfromCMAP}: calculate and remove principal components from Connectivity map data. If CMAP data matrix have already been reconstructed using the same PCs and pert_types this function will read previously saved SVD output and reconstructed CMAP data matrix
+}
+\examples{
+library(regNETcmap)
+CMap_files = loadCMap(directory = "../regulatory_networks_by_cmap/data/cmap/")
 }

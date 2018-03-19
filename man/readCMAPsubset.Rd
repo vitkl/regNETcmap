@@ -32,6 +32,7 @@ object of class 'GCT' [package "cmapR"] with 7 slots containing z-score matrix, 
 }
 \examples{
 # read all knockdown perturbations (3.4GB)
+library(regNETcmap)
 CMap_files = loadCMap(directory = "../regulatory_networks_by_cmap/data/cmap/")
 allIDs = geneName2PerturbAnno(gene_names = "all", CMap_files = CMap_files, is_touchstone = T, pert_types = "trt_sh.cgs")
 perturbTable(pdata = allIDs)

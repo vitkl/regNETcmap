@@ -13,9 +13,14 @@
 ##' @param pval_corr_method multiple hypothesis p-value correction method. Details: \link[stats]{p.adjust} - method.
 ##' @param renormalise renormalise z-scores for a Connectivity map subset being analysed. Z-score = (X-\link[stats]{median}(X)) / (\link[stats]{mad}(X)*1.4826)
 ##' @param n_cores number of cores to be used in parallel processing (over combinations of clusters). More details: \link[parallel]{parLapply}, \link[parallel]{makeCluster}, \link[parallel]{detectCores}
+##' @param clustermq Use clustermq LSF job scheduler (TRUE) as an alternative to parLapply (FALSE). Details: \link[clustermq]{Q}
+##' @param clustermq_seed When using clustermq: Seed for random number generation.
+##' @param clustermq_memory When using clustermq: memory requested for each job
+##' @param clustermq_job_size When using clustermq: The number of function calls per job
 ##' @return data.table containing gene set id, which genes may regulate this set, test statistic and difference in medians between each gene set and all other genes
 ##' @import data.table
 ##' @import parallel
+##' @import clustermq
 ##' @export regFromCMAP
 ##' @examples
 ##' library(regNETcmap)
@@ -45,7 +50,7 @@
 ##'     method = "ks", cutoff = 1, pval_corr_method = "fdr",
 ##'     n_cores = detectCores() - 1)
 ##' qplot(x = pVals_reg$diff_median, y = -log10(pVals_reg$pVals), geom = "bin2d", bins = 150) + theme_light()
-regFromCMAP = function(cmap, gene_sets, gene_set_id_col = "phenotypes", gene_id_col = "entrezgene", method =  c("ks", "wilcox", "GSEA")[1], GSEA_weighting = 1, cutoff = 1, pval_corr_method = "fdr", renormalise = F, n_cores = detectCores() - 1){
+regFromCMAP = function(cmap, gene_sets, gene_set_id_col = "phenotypes", gene_id_col = "entrezgene", method =  c("ks", "wilcox", "GSEA")[1], GSEA_weighting = 1, cutoff = 1, pval_corr_method = "fdr", renormalise = F, n_cores = detectCores() - 1, clustermq = F, clustermq_seed = 128965, clustermq_memory = 2000, clustermq_job_size = 10){
   gene_sets = unique(gene_sets[, c(gene_set_id_col, gene_id_col), with = F])
   setnames(gene_sets, c(gene_set_id_col, gene_id_col), c("gene_set_id", "gene_id"))
   setorder(gene_sets, gene_set_id)
@@ -75,34 +80,68 @@ regFromCMAP = function(cmap, gene_sets, gene_set_id_col = "phenotypes", gene_id_
     alternative_pos = alternative_pos_temp
   }
 
-  # set up parallel processing
-  # create cluster
-  cl <- makeCluster(n_cores)
-  # get library support needed to run the code
-  clusterEvalQ(cl, {library(regNETcmap)})
-  # put objects in place that might be needed for the code
-  clusterExport(cl, c("cmap_mat", "gene_sets", "method", "alternative_neg", "alternative_pos", "GSEA_weighting"), envir=environment())
+  if(clustermq){
+    pVals_neg = Q(fun = function(name) {
+      library(regNETcmap)
+      regFromCMAPSingle(cmap_mat = cmap_mat,
+                        gene_sets = gene_sets,
+                        gene_set_name = name,
+                        method = method,
+                        GSEA_weighting = GSEA_weighting,
+                        alternative = alternative_neg)
+    }, unique(gene_sets$gene_set_id),
+    const = list(), export = list(cmap_mat = cmap_mat, gene_sets = gene_sets,
+                                  method = method, alternative_neg = alternative_neg,
+                                  alternative_pos = alternative_pos, GSEA_weighting = GSEA_weighting),
+    seed = clustermq_seed, memory = clustermq_memory, template = list(), n_jobs = NULL, job_size = clustermq_job_size,
+      split_array_by = -1, rettype = "list", fail_on_error = TRUE,
+      workers = NULL, log_worker = FALSE, wait_time = NA, chunk_size = NA)
 
-  pVals_neg = parLapply(cl, X = unique(gene_sets$gene_set_id),
-                        fun = function(name) {
-                          regFromCMAPSingle(cmap_mat = cmap_mat,
-                                            gene_sets = gene_sets,
-                                            gene_set_name = name,
-                                            method = method,
-                                            GSEA_weighting = GSEA_weighting,
-                                            alternative = alternative_neg)
-                        })
-  pVals_pos = parLapply(cl, X = unique(gene_sets$gene_set_id),
-                        fun = function(name) {
-                          regFromCMAPSingle(cmap_mat = cmap_mat,
-                                            gene_sets = gene_sets,
-                                            gene_set_name = name,
-                                            method = method,
-                                            GSEA_weighting = GSEA_weighting,
-                                            alternative = alternative_pos)
-                        })
-  # stop cluster
-  stopCluster(cl)
+    pVals_pos = Q(fun = function(name) {
+      library(regNETcmap)
+      regFromCMAPSingle(cmap_mat = cmap_mat,
+                        gene_sets = gene_sets,
+                        gene_set_name = name,
+                        method = method,
+                        GSEA_weighting = GSEA_weighting,
+                        alternative = alternative_pos)
+    }, unique(gene_sets$gene_set_id),
+    const = list(), export = list(cmap_mat = cmap_mat, gene_sets = gene_sets,
+                                  method = method, alternative_neg = alternative_neg,
+                                  alternative_pos = alternative_pos, GSEA_weighting = GSEA_weighting),
+      seed = clustermq_seed, memory = clustermq_memory, template = list(), n_jobs = NULL, job_size = clustermq_job_size,
+      split_array_by = -1, rettype = "list", fail_on_error = TRUE,
+      workers = NULL, log_worker = FALSE, wait_time = NA, chunk_size = NA)
+  } else {
+    # set up parallel processing
+    # create cluster
+    cl <- makeCluster(n_cores)
+    # get library support needed to run the code
+    clusterEvalQ(cl, {library(regNETcmap)})
+    # put objects in place that might be needed for the code
+    clusterExport(cl, c("cmap_mat", "gene_sets", "method", "alternative_neg", "alternative_pos", "GSEA_weighting"), envir=environment())
+
+    pVals_neg = parLapply(cl, X = unique(gene_sets$gene_set_id),
+                          fun = function(name) {
+                            regFromCMAPSingle(cmap_mat = cmap_mat,
+                                              gene_sets = gene_sets,
+                                              gene_set_name = name,
+                                              method = method,
+                                              GSEA_weighting = GSEA_weighting,
+                                              alternative = alternative_neg)
+                          })
+    pVals_pos = parLapply(cl, X = unique(gene_sets$gene_set_id),
+                          fun = function(name) {
+                            regFromCMAPSingle(cmap_mat = cmap_mat,
+                                              gene_sets = gene_sets,
+                                              gene_set_name = name,
+                                              method = method,
+                                              GSEA_weighting = GSEA_weighting,
+                                              alternative = alternative_pos)
+                          })
+    # stop cluster
+    stopCluster(cl)
+  }
 
   # combine results
   pVals_neg = Reduce(rbind, pVals_neg)
@@ -162,7 +201,6 @@ regFromCMAPSingle = function(cmap_mat, gene_sets,
   }
   if(method == "GSEA"){
     if(alternative == "less"){
-      x = proc.time()
       pVals <- apply(cmap_mat,
                      2, function(mat){
                        p.val = gsEasy::gset(S = which(genes_ind), N = NULL,
@@ -176,7 +214,6 @@ regFromCMAPSingle = function(cmap_mat, gene_sets,
                                             significance_threshold = 1, log_dismiss = -10,
                                             raw_score = TRUE)
                        c(p.val, score, median(mat[genes_ind]) - median(mat[!genes_ind]))} )
-      proc.time() - x
     } else if (alternative == "greater"){
       pVals <- apply(cmap_mat,
                      2, function(mat){
