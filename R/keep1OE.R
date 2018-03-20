@@ -11,13 +11,15 @@
 ##' @import data.table
 ##' @export keep1OE
 keep1OE = function(PerturbAnno, keep_one_oe = c("one", "other", "all")[1], pert_types = "trt_oe", CMap_files) {
-  duplicated = table(PerturbAnno[pert_type == pert_types[1]]$pert_iname)[table(PerturbAnno[pert_type == pert_types[1]]$pert_iname) > 1]
-  if(length(duplicated) >= 1){
-    duplicated_IDs = geneName2PerturbAnno(gene_names = names(duplicated), CMap_files = CMap_files,
-                                          is_touchstone = as.logical(unique(PerturbAnno$is_touchstone)),
+  duplicated = PerturbAnno[pert_type == pert_types[1]]
+  duplicated[, n_per_iname := uniqueN(sig_id), by = .(pert_iname, pert_type, cell_id, pert_time)]
+  duplicated = duplicated[n_per_iname > 1]
+  if(nrow(duplicated) >= 1){
+    duplicated_IDs = geneName2PerturbAnno(gene_names = unique(duplicated$pert_iname), CMap_files = CMap_files,
+                                          is_touchstone = as.logical(unique(duplicated$is_touchstone)),
                                           pert_types = pert_types[1],
-                                          pert_times = unique(PerturbAnno$pert_time),
-                                          cell_ids = unique(PerturbAnno$cell_id))
+                                          pert_times = unique(as.character(duplicated$pert_time)),
+                                          cell_ids = unique(as.character(duplicated$cell_id)))
     duplicated_IDs = duplicated_IDs[order(pert_iname)]
     duplicated_IDs[, pert_id_in_sig_id := grep(pert_id, sig_id, ignore.case = T, value = T), by = pert_id]
     if(keep_one_oe == "one"){
@@ -27,7 +29,10 @@ keep1OE = function(PerturbAnno, keep_one_oe = c("one", "other", "all")[1], pert_
     } else message("keep_one_oe argument can be only \"one\", \"other\", \"all\". No perturbation filtered")
     duplicated_IDs$pert_id_in_sig_id = NULL
     # add duplicated to all
-    PerturbAnno = PerturbAnno[!pert_iname %in% names(duplicated)]
+    PerturbAnno = PerturbAnno[!(pert_iname %in% duplicated$pert_iname &
+                                  pert_type %in% duplicated$pert_type &
+                                  cell_id %in% duplicated$cell_id &
+                                  pert_time %in% duplicated$pert_time)]
     PerturbAnno = rbind(PerturbAnno, duplicated_IDs)
   }
 

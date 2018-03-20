@@ -23,10 +23,10 @@ geneName2PerturbAnno = function(gene_names = "TP53", CMap_files, is_touchstone =
   if(is_touchstone == "all") NULL else {
     if(is_touchstone) PerturbAnno = PerturbAnno[is_touchstone == 1] else if(!is_touchstone) PerturbAnno = PerturbAnno[is_touchstone == 0]
   }
-  if(cell_ids == "all") NULL else {
+  if(cell_ids[1] == "all") NULL else {
     PerturbAnno = PerturbAnno[cell_id %in% cell_ids]
   }
-  if(pert_times == "all") NULL else {
+  if(pert_times[1] == "all") NULL else {
     PerturbAnno = PerturbAnno[pert_time %in% pert_times]
   }
 
