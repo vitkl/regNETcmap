@@ -76,16 +76,16 @@ findOrthologs = function(datasets_FROM_TO = loadBIOMARTdatasets(from = "hsapiens
 ##' @examples
 ##' findOrthologsHsMm()
 findOrthologsHsMm = function(from_filters = "hgnc_symbol",
-                         from_values = c("TP53", "TERT"),
-                         to_attributes = "external_gene_name"){
+                             from_values = c("TP53", "TERT"),
+                             to_attributes = "external_gene_name"){
   findOrthologs(datasets_FROM_TO = loadBIOMARTdatasets(from = "hsapiens_gene_ensembl",
-                                                                  to = "mmusculus_gene_ensembl"),
-                           from_filters = from_filters,
-                           from_values = from_values,
+                                                       to = "mmusculus_gene_ensembl"),
+                from_filters = from_filters,
+                from_values = from_values,
                 to_attributes = to_attributes,
-                           to_homolog_attribute = "mmusculus_homolog_ensembl_gene",
-                           from_gene_id_name = "human_ensembl_gene_id",
-                           to_gene_id_name = "mouse_ensembl_gene_id")
+                to_homolog_attribute = "mmusculus_homolog_ensembl_gene",
+                from_gene_id_name = "human_ensembl_gene_id",
+                to_gene_id_name = "mouse_ensembl_gene_id")
 }
 
 ##' @rdname findOrthologs
@@ -149,4 +149,42 @@ attributesFiltersFromTo = function(datasets_FROM_TO = loadBIOMARTdatasets()){
        from_filters = listFilters(ensembl_from),
        to_attributes = listAttributes(ensembl_to),
        to_filters = listFilters(ensembl_to))
+}
+
+##' Map moleculer identifiers using ENSEMBL BioMart
+##' @rdname mapIDs
+##' @name mapIDs
+##' @description mapIDs(): Map moleculer identifiers in a data.table using ENSEMBL BioMart - \link[biomaRt]{getBM}
+##' @param DT data.table containing id to be converted
+##' @param ids2convert_col column in \code{DT} containing identifiers to be converted
+##' @param filters Filters (one, in ids2convert_col column) that should be used in the query. A possible list of filters can be retrieved using the function listFilters.
+##' @param map_to Attributes you want to retrieve. A possible list of attributes can be retrieved using the function listAttributes.
+##' @param map_to_name how to name the column in the output containing \code{map_to} identifiers
+##' @param biomart_dataset which BioMart dataset to use for mapping. Full list of possible options: listDatasets("ensembl")
+##' @return mapIDs(): data.table \code{DT} containing an additional column (\code{map_to_name})
+##' @import biomaRt
+##' @import data.table
+##' @export mapIDs
+##' @examples
+##' # load TF regulon data
+##' combined_file = "../regulatory_networks_by_cmap/data/validation_TF_regulons/all_simp_regulons_w_pos_effect.tsv"
+##' regulons = fread(combined_file, header = T, stringsAsFactors = F)
+##' regulons = mapIDs(regulons)
+mapIDs = function(DT, ids2convert_col = "target", filters = "hgnc_symbol", map_to = "entrezgene", map_to_name =  "target_entrezgene", biomart_dataset = "hsapiens_gene_ensembl"){
+  ## Map HGNC symbols to entrez gene id
+  biomart = loadBIOMARTdatasets(from = biomart_dataset,
+                                to = biomart_dataset)
+  biomart = biomart$ensembl_from
+
+  hgnc_symbol2entrezgene = getBM(attributes = c(map_to, filters),
+                                 filters = filters,
+                                 values = unique(DT[, ids2convert_col, with = F]),
+                                 mart = biomart)
+
+  hgnc_symbol2entrezgene = unique(as.data.table(hgnc_symbol2entrezgene))
+  setnames(hgnc_symbol2entrezgene,map_to,map_to_name)
+  unique(merge(x = DT, y = hgnc_symbol2entrezgene,
+        by.x = ids2convert_col, by.y = filters,
+        all.x = T, all.y = F, allow.cartesian = TRUE))
+
 }

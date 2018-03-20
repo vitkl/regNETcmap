@@ -50,7 +50,13 @@
 ##'     method = "ks", cutoff = 1, pval_corr_method = "fdr",
 ##'     n_cores = detectCores() - 1)
 ##' qplot(x = pVals_reg$diff_median, y = -log10(pVals_reg$pVals), geom = "bin2d", bins = 150) + theme_light()
-regFromCMAP = function(cmap, gene_sets, gene_set_id_col = "phenotypes", gene_id_col = "entrezgene", method =  c("ks", "wilcox", "GSEA")[1], GSEA_weighting = 1, cutoff = 1, pval_corr_method = "fdr", renormalise = F, n_cores = detectCores() - 1, clustermq = F, clustermq_seed = 128965, clustermq_memory = 2000, clustermq_job_size = 10){
+regFromCMAP = function(cmap, gene_sets,
+                       gene_set_id_col = "phenotypes", gene_id_col = "entrezgene",
+                       method =  c("ks", "wilcox", "GSEA")[1], GSEA_weighting = 1,
+                       cutoff = 1, pval_corr_method = "fdr",
+                       renormalise = F, n_cores = detectCores() - 1,
+                       clustermq = F, clustermq_seed = 128965,
+                       clustermq_memory = 2000, clustermq_job_size = 10){
   gene_sets = unique(gene_sets[, c(gene_set_id_col, gene_id_col), with = F])
   setnames(gene_sets, c(gene_set_id_col, gene_id_col), c("gene_set_id", "gene_id"))
   setorder(gene_sets, gene_set_id)

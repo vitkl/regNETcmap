@@ -28,7 +28,7 @@
 ##' # some of it's targets positively, some negatively and some are not affected.
 ##' ks.test_expl(alternative = "greater", prop_pos = 0.33, prop_neg = 0.4, seed = 1, cex.main = 1.4)
 ##' @export ks.test_expl
-ks.test_expl = function(N_other = 1000, N_set = 100, alternative = "greater", z_score = 1.5, prop_pos = 0.3, prop_neg = 0, x_coor_other = -1.7, x_coor_set = 1.7, cex = 1.7, title = "Treatment: anti-Oct4 shRNA.\nOct4 is a pos. and a neg. regulator of its targets", xlab = "z-score, simulated", lab_other = "other genes", lab_set = "Oct4 targets", seed = 1, x = NULL, y = NULL, distr = rnorm, col_other = "black", col_set = "blue",  ...) {
+ks.test_expl = function(N_other = 1000, N_set = 100, alternative = "greater", z_score = 1.5, prop_pos = 0.3, prop_neg = 0, x_coor_other = -1.7, x_coor_set = 1.7, cex = 1.7, title = "Treatment: anti-Oct4 shRNA.\nOct4 is a pos. and a neg. regulator of its targets", xlab = "z-score, simulated", lab_other = "other genes", lab_set = "Oct4 targets", seed = 1, x = NULL, y = NULL, gener_dist = NULL, gener_dist_lab = "all genes", distr = rnorm, col_other = "black", col_set = "blue",  ...) {
   set.seed(seed)
 
   #data
@@ -40,7 +40,14 @@ ks.test_expl = function(N_other = 1000, N_set = 100, alternative = "greater", z_
     rep(0, ceiling(N_set*(1 - prop_pos - prop_neg)))))
   if(is.null(y)) random23 = random2+random3 else random23 = y
 
-  #plots
+  # ggplot
+  # formatting data
+  if(is.null(gener_dist)) gener_dist = c(random1, random23)
+  data.frame(val = c(random1, random23, gener_dist),
+             lab = c(rep(lab_other, length(random1)),
+                     rep(lab_set, length(random23)),
+                     rep(gener_dist_lab, length(gener_dist))))
+  # plots
   par(mar = c(5,5,3,2.5))
   plot(ecdf(random1), xlab = xlab, ylab = "ECDF",
        main = title,

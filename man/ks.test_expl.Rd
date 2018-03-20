@@ -10,7 +10,8 @@ ks.test_expl(N_other = 1000, N_set = 100, alternative = "greater",
   title = "Treatment: anti-Oct4 shRNA.\\nOct4 is a pos. and a neg. regulator of its targets",
   xlab = "z-score, simulated", lab_other = "other genes",
   lab_set = "Oct4 targets", seed = 1, x = NULL, y = NULL,
-  distr = rnorm, col_other = "black", col_set = "blue", ...)
+  gener_dist = NULL, gener_dist_lab = "all genes", distr = rnorm,
+  col_other = "black", col_set = "blue", ...)
 }
 \arguments{
 \item{N_other}{integer, size of the "other" group, ignored if x is provided}
