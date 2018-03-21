@@ -25,7 +25,7 @@ regFromCMAPmcell(CMap_files, cell_ids = c("A375", "A549", "HA1E", "HCC515",
   GSEA_weighting = 1, keep_one_oe = c("one", "other", "all")[1],
   cutoff = 0.05, pval_corr_method = "fdr", renormalise = F,
   n_cores = detectCores() - 1, gene_names = c("all",
-  unique(gene_sets$hgnc_symbol)[3:22])[1])
+  unique(gene_sets$hgnc_symbol)[3:22])[1], landmark_only = F)
 }
 \arguments{
 \item{cmap}{object of class 'GCT' [package "cmapR"] with 7 slots containing z-score matrix, perturbation and feature details of the Connectivity map project. Returned by \code{\link{readCMAP}} or \code{\link{readCMAPsubset}}}
@@ -79,6 +79,8 @@ regFromCMAPmcell(CMap_files, cell_ids = c("A375", "A549", "HA1E", "HCC515",
 \item{keep_one_oe}{keep only one overexpression experiment per gene and condition. Applicable only when \code{pert_types = "trt_oe"}. Perturbations where sig_id matches pert_id are retained ("one"). To invert the selection use "other". To select all use "all"}
 
 \item{gene_names}{a character vector of HUGO gene names. Use \code{"all"} to select all perturbations.}
+
+\item{landmark_only}{look only at landmark genes. Details: https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/edit}
 }
 \value{
 data.table containing gene set id, which genes may regulate this set, test statistic and difference in medians between each gene set and all other genes

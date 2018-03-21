@@ -8,8 +8,8 @@ TFtargetsINcmap(regulons, alternative = "less", pert_types = c("trt_oe"),
   cell_ids = c("A375", "A549", "HA1E", "HCC515", "HEPG2", "HT29", "MCF7",
   "PC3"), gene_names = c("NFKB1", "E2F1", "MYC", "TP53", "YY1", "JUN",
   "STAT1", "STAT3"), pert_times = c("96"), CMap_files,
-  keep_one_oe = c("one", "other", "all")[1], clustermq_memory = 2000,
-  clustermq_job_size = 1)
+  keep_one_oe = c("one", "other", "all")[1], landmark_only = F,
+  clustermq_memory = 2000, clustermq_job_size = 1)
 }
 \arguments{
 \item{regulons}{data.table containing TF regulons (TF and target columns)}
@@ -27,6 +27,8 @@ TFtargetsINcmap(regulons, alternative = "less", pert_types = c("trt_oe"),
 \item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
 
 \item{keep_one_oe}{keep only one overexpression experiment per gene and condition. Applicable only when \code{pert_types = "trt_oe"}. Perturbations where sig_id matches pert_id are retained ("one"). To invert the selection use "other". To select all use "all"}
+
+\item{landmark_only}{look only at landmark genes. Details: https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/edit}
 
 \item{clustermq_memory}{When using clustermq: memory requested for each job}
 

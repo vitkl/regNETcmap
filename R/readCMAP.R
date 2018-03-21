@@ -5,6 +5,7 @@
 ##' @description \code{readCMAP} reads Connectivity Map data given perturbation annotations for a set of HUGO gene names (or Entrez gene ID) including additional filtering by cell line, perturbation type (compound, shRNA, overexpression, e.g.) and time. Details \code{\link{geneName2PerturbAnno}}
 ##' @param PerturbAnno data.table containing the perturbation details from the Connectivity map project produced by \code{\link{geneName2PerturbAnno}}
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
+##' @param landmark_only read only landmark genes (rows, measured). Details: https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/edit
 ##' @return object of class 'GCT' [package "cmapR"] with 7 slots containing z-score matrix, perturbation and feature details of the Connectivity map project
 ##' @export readCMAP
 ##' @seealso \code{\link{openCellInfo}}, \code{\link{loadCMap}}, \code{\link{perturbTable}}
@@ -17,13 +18,16 @@
 ##' allIDs = geneName2PerturbAnno(gene_names = "all", CMap_files = CMap_files, is_touchstone = T, pert_types = "trt_sh.cgs")
 ##' CMAP = readCMAP(PerturbAnno = allIDs, CMap_files = CMap_files)
 readCMAP = function(PerturbAnno,
-                    CMap_files) {
+                    CMap_files,
+                    landmark_only = F) {
   unzipped = substr(CMap_files$sig_level5[2],
                     1, nchar(CMap_files$sig_level5[2])-3)
   if(!file.exists(unzipped)) unzipCMapData(CMap_files)
-  CMAP = parse.gctx(fname = unzipped, rid = NULL, cid = PerturbAnno$sig_id, set_annot_rownames = F,
+  fdata = openFeatureData(CMap_files)
+  if(landmark_only) fdata = fdata[pr_is_lm == 1]
+  CMAP = parse.gctx(fname = unzipped, rid = fdata$pr_gene_id, cid = PerturbAnno$sig_id, set_annot_rownames = F,
              matrix_only = F)
   if(ncol(CMAP@cdesc) == 1) CMAP = annotate.gct(CMAP, PerturbAnno, dim="col", keyfield="sig_id")
-  if(ncol(CMAP@rdesc) == 1) CMAP = annotate.gct(CMAP, openFeatureData(CMap_files), dim="row", keyfield="pr_gene_id")
+  if(ncol(CMAP@rdesc) == 1) CMAP = annotate.gct(CMAP, fdata, dim="row", keyfield="pr_gene_id")
   CMAP
 }

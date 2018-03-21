@@ -62,6 +62,8 @@ regFromCMAP = function(cmap, gene_sets,
   setorder(gene_sets, gene_set_id)
   # remove not mapped genes
   gene_sets = gene_sets[gene_id != "" | !is.na(gene_id) | gene_id != "NA"]
+  # look only at regulons where target genes were measured in cmap
+  gene_sets = gene_sets[gene_id %in% cmap@rdesc$pr_gene_id]
   # extract data matrix
   cmap_mat = cmap@mat
   # renormalise:
@@ -258,6 +260,7 @@ regFromCMAPSingle = function(cmap_mat, gene_sets,
 ##' @param max_cell_lines keep a gene=>gene-set interaction if at most \code{max_cell_lines} support it (inclusive)
 ##' @param gene_names a character vector of HUGO gene names. Use \code{"all"} to select all perturbations.
 ##' @param keep_one_oe keep only one overexpression experiment per gene and condition. Applicable only when \code{pert_types = "trt_oe"}. Perturbations where sig_id matches pert_id are retained ("one"). To invert the selection use "other". To select all use "all"
+##' @param landmark_only look only at landmark genes. Details: https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/edit
 ##' @return \code{regFromCMAPmcell}: data.table containing gene set id, which genes may regulate these sets and the cell line of origin, test statistic and difference in medians between each gene set and all other genes
 ##' @import data.table
 ##' @export regFromCMAPmcell
@@ -277,7 +280,8 @@ regFromCMAPmcell = function(CMap_files, cell_ids = c("A375", "A549", "HA1E",
                             cutoff = 0.05, pval_corr_method = "fdr",
                             renormalise = F,
                             n_cores = detectCores() - 1,
-                            gene_names = c("all", unique(gene_sets$hgnc_symbol)[3:22])[1]) {
+                            gene_names = c("all", unique(gene_sets$hgnc_symbol)[3:22])[1],
+                            landmark_only = F) {
   if(!min_cell_lines <= max_cell_lines) stop("regFromCMAPmcell: min_cell_lines should be smaller or equal to max_cell_lines")
   if(length(pert_times) != 1) stop("regFromCMAPmcell: only single perturbation time (pert_times) is allowed")
   types = perturbTable(CMap_files, ~ pert_type)
@@ -289,7 +293,8 @@ regFromCMAPmcell = function(CMap_files, cell_ids = c("A375", "A549", "HA1E",
     pVals_type = lapply(pert_types, function(pert_type, cell_line){
       CMAPsub = readCMAPsubset(is_touchstone = is_touchstone, pert_types = pert_type,
                                pert_times = pert_times, cell_ids = cell_line,
-                               CMap_files, gene_names = gene_names, keep_one_oe = keep_one_oe)
+                               CMap_files, gene_names = gene_names, keep_one_oe = keep_one_oe,
+                               landmark_only = landmark_only)
       regFromCMAP(cmap = CMAPsub,
                   gene_sets = gene_sets,
                   gene_set_id_col = gene_set_id_col, gene_id_col = gene_id_col,

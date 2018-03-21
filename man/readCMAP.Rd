@@ -4,12 +4,14 @@
 \alias{readCMAP}
 \title{Read Connectivity Map data given perturbation annotations}
 \usage{
-readCMAP(PerturbAnno, CMap_files)
+readCMAP(PerturbAnno, CMap_files, landmark_only = F)
 }
 \arguments{
 \item{PerturbAnno}{data.table containing the perturbation details from the Connectivity map project produced by \code{\link{geneName2PerturbAnno}}}
 
 \item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
+
+\item{landmark_only}{read only landmark genes (rows, measured). Details: https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/edit}
 }
 \value{
 object of class 'GCT' [package "cmapR"] with 7 slots containing z-score matrix, perturbation and feature details of the Connectivity map project

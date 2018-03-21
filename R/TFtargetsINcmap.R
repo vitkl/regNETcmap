@@ -11,6 +11,7 @@
 ##' @param pert_times a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_time)}
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
 ##' @param keep_one_oe keep only one overexpression experiment per gene and condition. Applicable only when \code{pert_types = "trt_oe"}. Perturbations where sig_id matches pert_id are retained ("one"). To invert the selection use "other". To select all use "all"
+##' @param landmark_only look only at landmark genes. Details: https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/edit
 ##' @param clustermq_memory When using clustermq: memory requested for each job
 ##' @param clustermq_job_size When using clustermq: The number of function calls per job
 ##' @return list containing data.table summary of TF perturbation effects on TF targets, object of class 'GCT' (CMap data), summary of genes vs cell lines available in CMap and returned (gene_cell_counts)
@@ -27,6 +28,7 @@ TFtargetsINcmap = function(regulons, alternative = "less",
                                           "YY1", "JUN", "STAT1", "STAT3"),
                            pert_times = c("96"),
                            CMap_files, keep_one_oe = c("one", "other", "all")[1],
+                           landmark_only = F,
                            clustermq_memory = 2000, clustermq_job_size = 1
 ){
 
@@ -35,12 +37,16 @@ TFtargetsINcmap = function(regulons, alternative = "less",
                         pert_types = pert_types, #trt_sh.cgs trt_oe
                         pert_times = pert_times, cell_ids = cell_ids,
                         gene_names = gene_names, CMap_files = CMap_files,
-                        keep_one_oe = keep_one_oe)
+                        keep_one_oe = keep_one_oe,
+                        landmark_only = landmark_only)
 
   gene_cell_counts = completeCellGeneCombs(cmap)
 
   cell_ids = cell_ids[cell_ids %in% colnames(gene_cell_counts$gene_cell_counts)]
   gene_names = gene_names[gene_names %in% rownames(gene_cell_counts$gene_cell_counts)]
+
+  # look only at regulons where target genes were measured in cmap
+  regulons = regulons[target_entrezgene %in% cmap@rdesc$pr_gene_id]
 
   # produce data for plotting
   res = Q(function(cell_line){
