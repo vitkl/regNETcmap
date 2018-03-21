@@ -76,7 +76,7 @@ TFtargetsINcmap = function(regulons, alternative = "less",
         #                            max_its = 1e+05,
         #                            significance_threshold = 1, log_dismiss = -10,
         #                            raw_score = TRUE)
-        size = regulons[TF %in% TF_measured, unique(size)]
+        size = sum(target_ind)
         data.table(target = ifelse(target_ind,"TF_targets", "other_genes"), TF_sh_lab = paste0(TF_sh," shRNA"),
                    cell_ids = cell_line, TF_measured_lab = paste0(TF_measured, " regulon\ntargets:", size),
                    TF_measured = TF_measured, TF_sh = TF_sh,
@@ -94,9 +94,9 @@ TFtargetsINcmap = function(regulons, alternative = "less",
   export = list(regulons = regulons, gene_names = gene_names, cmap = cmap, alternative = alternative),
   job_size = clustermq_job_size, memory = clustermq_memory)
   res = Reduce(rbind, res)
-  res[, pvals := paste0("ks: ", signif(pval, 4), "\nGSEA1: ",
-                        signif(GSEA_pval1, 4), "\nGSEA10: ",
-                        signif(GSEA_pval10, 4)
+  res[, pvals := paste0("ks: ", signif(pval, 3), "\n",
+                        signif(GSEA_pval1, 3), "\n",
+                        signif(GSEA_pval10, 3)
                         )]
   list(res = res, cmap = cmap, gene_cell_counts = gene_cell_counts)
 }
