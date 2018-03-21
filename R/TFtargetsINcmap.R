@@ -76,8 +76,9 @@ TFtargetsINcmap = function(regulons, alternative = "less",
         #                            max_its = 1e+05,
         #                            significance_threshold = 1, log_dismiss = -10,
         #                            raw_score = TRUE)
+        size = regulons[TF %in% TF_measured, unique(size)]
         data.table(target = ifelse(target_ind,"TF_targets", "other_genes"), TF_sh_lab = paste0(TF_sh," shRNA"),
-                   cell_ids = cell_line, TF_measured_lab = paste0(TF_measured, " regulon"),
+                   cell_ids = cell_line, TF_measured_lab = paste0(TF_measured, " regulon\ntargets:", size),
                    TF_measured = TF_measured, TF_sh = TF_sh,
                    gene_exp = mat[, cell_line_ind & TF_sh_ind],
                    pval = w$p.value, statistic = w$statistic,
@@ -95,8 +96,8 @@ TFtargetsINcmap = function(regulons, alternative = "less",
   res = Reduce(rbind, res)
   res[, pvals := paste0("ks: ", signif(pval, 4), "\nGSEA: ",
                         signif(GSEA_pval1, 4), "\nGSEA(exp10): ",
-                        signif(GSEA_pval10, 4), "\n targets: ",
-                        size)]
+                        signif(GSEA_pval10, 4)
+                        )]
   list(res = res, cmap = cmap, gene_cell_counts = gene_cell_counts)
 }
 
@@ -115,7 +116,7 @@ plotTFtargetsINcmap = function(res, TFsels = NULL,
     p = ggplot(res[cell_ids == cellline & TF_sh %in% TFsels & TF_measured %in% TFsels],
                aes(x = gene_exp, color = target)) +
       geom_density() + facet_grid(TF_measured_lab~TF_sh_lab) +
-      geom_text(y = 1, x = 3, aes(label = pvals), size = 4) +
+      geom_text(y = 0.5, x = 1, aes(label = pvals), size = 2) +
       theme(strip.text.y = element_text(angle = 0, size = 8),
             strip.text.x = element_text(size = 8)) +
       ggtitle(title, subtitle = cellline) + xlab("z-score")
