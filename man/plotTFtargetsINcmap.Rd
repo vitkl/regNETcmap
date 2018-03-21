@@ -5,7 +5,9 @@
 \title{Plot TF perturbation effects (CMap) on TF targets}
 \usage{
 plotTFtargetsINcmap(res, TFsels = NULL,
-  title = "TF that positively regulate their targets \\n(shRNA induces shift to the left)")
+  title = "TF that positively regulate their targets \\n(shRNA induces shift to the left)",
+  lab_text_size = 3, lab_text_y = 1.5, lab_text_x = 5,
+  strip.text_size = 8)
 }
 \arguments{
 \item{res}{data.table containing summary of TF perturbation effects on TF targets returned by \code{\link{TFtargetsINcmap}}}

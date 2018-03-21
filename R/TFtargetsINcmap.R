@@ -94,8 +94,8 @@ TFtargetsINcmap = function(regulons, alternative = "less",
   export = list(regulons = regulons, gene_names = gene_names, cmap = cmap, alternative = alternative),
   job_size = clustermq_job_size, memory = clustermq_memory)
   res = Reduce(rbind, res)
-  res[, pvals := paste0("ks: ", signif(pval, 4), "\nGSEA: ",
-                        signif(GSEA_pval1, 4), "\nGSEA(exp10): ",
+  res[, pvals := paste0("ks: ", signif(pval, 4), "\nGSEA1: ",
+                        signif(GSEA_pval1, 4), "\nGSEA10: ",
                         signif(GSEA_pval10, 4)
                         )]
   list(res = res, cmap = cmap, gene_cell_counts = gene_cell_counts)
@@ -109,16 +109,17 @@ TFtargetsINcmap = function(regulons, alternative = "less",
 ##' @import data.table
 ##' @export plotTFtargetsINcmap
 plotTFtargetsINcmap = function(res, TFsels = NULL,
-                               title = "TF that positively regulate their targets \n(shRNA induces shift to the left)") {
+                               title = "TF that positively regulate their targets \n(shRNA induces shift to the left)",
+                               lab_text_size = 3, lab_text_y = 1.5, lab_text_x = 5, strip.text_size = 8) {
   if(is.null(TFsels)) TFsels = unique(c(res$TF_sh, res$TF_measured))
   plots = list()
   for (cellline in unique(res$cell_ids)) {
     p = ggplot(res[cell_ids == cellline & TF_sh %in% TFsels & TF_measured %in% TFsels],
                aes(x = gene_exp, color = target)) +
       geom_density() + facet_grid(TF_measured_lab~TF_sh_lab) +
-      geom_text(y = 0.5, x = 1, aes(label = pvals), size = 2) +
-      theme(strip.text.y = element_text(angle = 0, size = 8),
-            strip.text.x = element_text(size = 8)) +
+      geom_text(y = lab_text_y, x = lab_text_x, aes(label = pvals), size = lab_text_size) +
+      theme(strip.text.y = element_text(angle = 0, size = strip.text_size),
+            strip.text.x = element_text(size = strip.text_size)) +
       ggtitle(title, subtitle = cellline) + xlab("z-score")
     plots[[which(unique(res$cell_ids) %in% cellline)]] = p
   }
