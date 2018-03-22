@@ -14,6 +14,8 @@
 ##' @param landmark_only look only at landmark genes. Details: https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/edit
 ##' @param clustermq_memory When using clustermq: memory requested for each job
 ##' @param clustermq_job_size When using clustermq: The number of function calls per job
+##' @param min_targets_in_cmap minimal number of TF targets in cmap
+##' @param force_gene_names look at all \code{gene_names} but less cell lines
 ##' @return list containing data.table summary of TF perturbation effects on TF targets, object of class 'GCT' (CMap data), summary of genes vs cell lines available in CMap and returned (gene_cell_counts)
 ##' @export TFtargetsINcmap
 ##' @import data.table
@@ -29,7 +31,8 @@ TFtargetsINcmap = function(regulons, alternative = "less",
                            pert_times = c("96"),
                            CMap_files, keep_one_oe = c("one", "other", "all")[1],
                            landmark_only = F,
-                           clustermq_memory = 2000, clustermq_job_size = 1
+                           clustermq_memory = 2000, clustermq_job_size = 1,
+                           min_targets_in_cmap = 3, force_gene_names = F
 ){
 
 
@@ -40,13 +43,16 @@ TFtargetsINcmap = function(regulons, alternative = "less",
                         keep_one_oe = keep_one_oe,
                         landmark_only = landmark_only)
 
-  gene_cell_counts = completeCellGeneCombs(cmap)
+  gene_cell_counts = completeCellGeneCombs(cmap, force_gene_names)
 
-  cell_ids = cell_ids[cell_ids %in% colnames(gene_cell_counts$gene_cell_counts)]
-  gene_names = gene_names[gene_names %in% rownames(gene_cell_counts$gene_cell_counts)]
+  if(cell_ids > 1) cell_ids = cell_ids[cell_ids %in% colnames(gene_cell_counts$gene_cell_counts)]
+  if(gene_names > 1) gene_names = gene_names[gene_names %in% rownames(gene_cell_counts$gene_cell_counts)]
 
   # look only at regulons where target genes were measured in cmap
-  regulons = regulons[target_entrezgene %in% cmap@rdesc$pr_gene_id]
+  regulons = regulons[target_entrezgene %in% rownames(cmap@mat)]
+  regulons[, targets_in_cmap := uniqueN(target_entrezgene), by = TF]
+  regulons = regulons[targets_in_cmap >= min_targets_in_cmap]
+  gene_names = gene_names[gene_names %in% regulons$TF]
 
   # produce data for plotting
   res = Q(function(cell_line){
@@ -104,7 +110,7 @@ TFtargetsINcmap = function(regulons, alternative = "less",
                         signif(GSEA_pval1, 3), "\n",
                         signif(GSEA_pval10, 3)
                         )]
-  list(res = res, cmap = cmap, gene_cell_counts = gene_cell_counts)
+  list(res = res, cmap = cmap, gene_cell_counts = gene_cell_counts, regulons = regulons)
 }
 
 ##' Plot TF perturbation effects (CMap) on TF targets
@@ -150,27 +156,30 @@ showLargestRegulons = function(regulons, N = 40) {
 ##' @rdname completeCellGeneCombs
 ##' @name completeCellGeneCombs
 ##' @param cmap object of class 'GCT' [package "cmapR"] with 7 slots containing z-score matrix, perturbation and feature details of the Connectivity map project. Returned by \code{\link{readCMAP}} or \code{\link{readCMAPsubset}}
+##' @param force_gene_names look at all \code{gene_names} but less cell lines
 ##' @import data.table
 ##' @export completeCellGeneCombs
-completeCellGeneCombs = function(cmap) {
+completeCellGeneCombs = function(cmap, force_gene_names = F) {
   gene_cell = as.data.table(cmap@cdesc)[, .(pert_iname, cell_id)]
   gene_cell$pert_iname = as.character(gene_cell$pert_iname)
   gene_cell$cell_id = as.character(gene_cell$cell_id)
   gene_cell_counts = table(gene_cell)
-  gene_zero_counts = rowMeans(gene_cell_counts == 0)
-  cell_zero_counts = colMeans(gene_cell_counts == 0)
-  if(max(gene_zero_counts) < max(cell_zero_counts)){
-    gene_cell_counts = gene_cell_counts[,!as.logical(cell_zero_counts)]
+  if(ncol(gene_cell_counts) > 1 & nrow(gene_cell_counts) > 1){
     gene_zero_counts = rowMeans(gene_cell_counts == 0)
     cell_zero_counts = colMeans(gene_cell_counts == 0)
-    gene_cell_counts = gene_cell_counts[!as.logical(gene_zero_counts),]
-    gene_cell_counts = gene_cell_counts[,!as.logical(cell_zero_counts)]
-  } else {
-    gene_cell_counts = gene_cell_counts[!as.logical(gene_zero_counts),]
-    gene_zero_counts = rowMeans(gene_cell_counts == 0)
-    cell_zero_counts = colMeans(gene_cell_counts == 0)
-    gene_cell_counts = gene_cell_counts[!as.logical(gene_zero_counts),]
-    gene_cell_counts = gene_cell_counts[,!as.logical(cell_zero_counts)]
+    if(max(gene_zero_counts) < max(cell_zero_counts) | force_gene_names){
+      gene_cell_counts = gene_cell_counts[,c(!as.logical(cell_zero_counts))]
+      gene_zero_counts = rowMeans(gene_cell_counts == 0)
+      cell_zero_counts = colMeans(gene_cell_counts == 0)
+      gene_cell_counts = gene_cell_counts[!as.logical(gene_zero_counts),]
+      gene_cell_counts = gene_cell_counts[,!as.logical(cell_zero_counts)]
+    } else {
+      gene_cell_counts = gene_cell_counts[!as.logical(gene_zero_counts),]
+      gene_zero_counts = rowMeans(gene_cell_counts == 0)
+      cell_zero_counts = colMeans(gene_cell_counts == 0)
+      gene_cell_counts = gene_cell_counts[!as.logical(gene_zero_counts),]
+      gene_cell_counts = gene_cell_counts[,!as.logical(cell_zero_counts)]
+    }
   }
   list(gene_cell_counts = gene_cell_counts, gene_cell_counts_requested = table(gene_cell))
 }

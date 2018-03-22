@@ -4,10 +4,12 @@
 \alias{completeCellGeneCombs}
 \title{Find cell lines and perturbations (Connectivity map) where all pert_iname are present in all cell_id}
 \usage{
-completeCellGeneCombs(cmap)
+completeCellGeneCombs(cmap, force_gene_names = F)
 }
 \arguments{
 \item{cmap}{object of class 'GCT' [package "cmapR"] with 7 slots containing z-score matrix, perturbation and feature details of the Connectivity map project. Returned by \code{\link{readCMAP}} or \code{\link{readCMAPsubset}}}
+
+\item{force_gene_names}{look at all \code{gene_names} but less cell lines}
 }
 \description{
 Find cell lines and perturbations (Connectivity map) where all pert_iname are present in all cell_id

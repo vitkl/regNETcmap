@@ -9,7 +9,8 @@ TFtargetsINcmap(regulons, alternative = "less", pert_types = c("trt_oe"),
   "PC3"), gene_names = c("NFKB1", "E2F1", "MYC", "TP53", "YY1", "JUN",
   "STAT1", "STAT3"), pert_times = c("96"), CMap_files,
   keep_one_oe = c("one", "other", "all")[1], landmark_only = F,
-  clustermq_memory = 2000, clustermq_job_size = 1)
+  clustermq_memory = 2000, clustermq_job_size = 1,
+  min_targets_in_cmap = 3, force_gene_names = F)
 }
 \arguments{
 \item{regulons}{data.table containing TF regulons (TF and target columns)}
@@ -33,6 +34,10 @@ TFtargetsINcmap(regulons, alternative = "less", pert_types = c("trt_oe"),
 \item{clustermq_memory}{When using clustermq: memory requested for each job}
 
 \item{clustermq_job_size}{When using clustermq: The number of function calls per job}
+
+\item{min_targets_in_cmap}{minimal number of TF targets in cmap}
+
+\item{force_gene_names}{look at all \code{gene_names} but less cell lines}
 }
 \value{
 list containing data.table summary of TF perturbation effects on TF targets, object of class 'GCT' (CMap data), summary of genes vs cell lines available in CMap and returned (gene_cell_counts)
