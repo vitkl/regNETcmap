@@ -45,8 +45,8 @@ TFtargetsINcmap = function(regulons, alternative = "less",
 
   gene_cell_counts = completeCellGeneCombs(cmap, force_gene_names)
 
-  if(cell_ids > 1) cell_ids = cell_ids[cell_ids %in% colnames(gene_cell_counts$gene_cell_counts)]
-  if(gene_names > 1) gene_names = gene_names[gene_names %in% rownames(gene_cell_counts$gene_cell_counts)]
+  cell_ids = cell_ids[cell_ids %in% colnames(gene_cell_counts$gene_cell_counts)]
+  gene_names = gene_names[gene_names %in% rownames(gene_cell_counts$gene_cell_counts)]
 
   # look only at regulons where target genes were measured in cmap
   regulons = regulons[target_entrezgene %in% rownames(cmap@mat)]
