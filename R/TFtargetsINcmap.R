@@ -137,8 +137,8 @@ plotTFtargetsINcmap = function(res, TFsels = NULL,
     p = ggplot(res[cell_ids == cellline & TF_sh %in% TFsels & TF_measured %in% TFsels],
                aes(x = gene_exp, color = target)) +
       geom_density() + facet_grid(TF_measured_lab~TF_sh_lab) +
-      geom_vline(aes(xintercept = TF_val), color = "#00BFC4", size = 2) +
       geom_vline(xintercept = 0, color = "black", size = 2) +
+      geom_vline(aes(xintercept = TF_val), color = "#00BFC4", size = 2) +
       xlim(xlim) +
       geom_text(y = lab_text_y, x = lab_text_x,
                 aes(label = pvals), size = lab_text_size) +
