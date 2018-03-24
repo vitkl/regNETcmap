@@ -52,6 +52,9 @@ TFtargetsINcmap = function(regulons, alternative = "less",
   regulons = regulons[target_entrezgene %in% rownames(cmap@mat)]
   regulons[, targets_in_cmap := uniqueN(target_entrezgene), by = TF]
   regulons = regulons[targets_in_cmap >= min_targets_in_cmap]
+  # TF in cmap
+  regulons = regulons[TF %in% cmap@rdesc$pr_gene_symbol]
+  # update gene name list
   gene_names = gene_names[gene_names %in% regulons$TF]
 
   # produce data for plotting
@@ -61,30 +64,33 @@ TFtargetsINcmap = function(regulons, alternative = "less",
     res = lapply(gene_names, function(TF_sh){
       res = lapply(gene_names, function(TF_measured){
         mat = cmap@mat
+        TF_ind = cmap@rdesc$pr_gene_symbol %in% regulons[TF %in% TF_measured, TF]
         target_ind = rownames(mat) %in% regulons[TF %in% TF_measured, target_entrezgene]
         cell_line_ind = cmap@cdesc$cell_id %in% cell_line
         TF_sh_ind = cmap@cdesc$pert_iname %in% TF_sh
-        x = mat[!target_ind, cell_line_ind & TF_sh_ind]
-        y = mat[target_ind, cell_line_ind & TF_sh_ind]
+        vec = mat[, cell_line_ind & TF_sh_ind]
+        x = vec[!target_ind]
+        y = vec[target_ind]
+        TF_val = vec[target_ind][1]
         w = ks.test(x, y, alternative = alternative)
-        if(alternative == "less") GSEA_mat = -mat else GSEA_mat = mat
+        if(alternative == "less") GSEA_vec = -vec else GSEA_vec = vec
         GSEA_pval1 = gsEasy::gset(S = which(target_ind), N = NULL,
-                                  r = GSEA_mat[, cell_line_ind & TF_sh_ind], p = 1, min_its = 1000,
+                                  r = GSEA_vec, p = 1, min_its = 1000,
                                   max_its = 1e+05,
                                   significance_threshold = 1, log_dismiss = -10,
                                   raw_score = FALSE)
         #GSEA_score1 = gsEasy::gset(S = which(target_ind), N = NULL,
-        #                           r = GSEA_mat, p = 1, min_its = 1000,
+        #                           r = GSEA_vec, p = 1, min_its = 1000,
         #                           max_its = 1e+05,
         #                           significance_threshold = 1, log_dismiss = -10,
         #                           raw_score = TRUE)
         GSEA_pval10 = gsEasy::gset(S = which(target_ind), N = NULL,
-                                   r = GSEA_mat[, cell_line_ind & TF_sh_ind], p = 10, min_its = 1000,
+                                   r = GSEA_vec, p = 10, min_its = 1000,
                                    max_its = 1e+05,
                                    significance_threshold = 1, log_dismiss = -10,
                                    raw_score = FALSE)
         #GSEA_score10 = gsEasy::gset(S = which(target_ind), N = NULL,
-        #                            r = GSEA_mat, p = 10, min_its = 1000,
+        #                            r = GSEA_vec, p = 10, min_its = 1000,
         #                            max_its = 1e+05,
         #                            significance_threshold = 1, log_dismiss = -10,
         #                            raw_score = TRUE)
@@ -92,7 +98,7 @@ TFtargetsINcmap = function(regulons, alternative = "less",
         data.table(target = ifelse(target_ind,"TF_targets", "other_genes"), TF_sh_lab = paste0(TF_sh," shRNA"),
                    cell_ids = cell_line, TF_measured_lab = paste0(TF_measured, " regulon\ntargets:", size),
                    TF_measured = TF_measured, TF_sh = TF_sh,
-                   gene_exp = mat[, cell_line_ind & TF_sh_ind],
+                   gene_exp = vec, TF_val = TF_val,
                    pval = w$p.value, statistic = w$statistic,
                    GSEA_pval1 = GSEA_pval1, GSEA_pval10 = GSEA_pval10,
                    #GSEA_score1 = GSEA_score1, GSEA_score10 = GSEA_score10,
@@ -129,7 +135,9 @@ plotTFtargetsINcmap = function(res, TFsels = NULL,
     p = ggplot(res[cell_ids == cellline & TF_sh %in% TFsels & TF_measured %in% TFsels],
                aes(x = gene_exp, color = target)) +
       geom_density() + facet_grid(TF_measured_lab~TF_sh_lab) +
-      geom_text(y = lab_text_y, x = lab_text_x, aes(label = pvals), size = lab_text_size) +
+      geom_vline(aes(xintercept = TF_val)) +
+      geom_text(y = lab_text_y, x = lab_text_x,
+                aes(label = pvals), size = lab_text_size) +
       theme(strip.text.y = element_text(angle = 0, size = strip.text_size),
             strip.text.x = element_text(size = strip.text_size)) +
       ggtitle(title, subtitle = cellline) + xlab("z-score")
