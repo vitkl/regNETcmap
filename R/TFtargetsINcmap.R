@@ -124,11 +124,13 @@ TFtargetsINcmap = function(regulons, alternative = "less",
 ##' @name plotTFtargetsINcmap
 ##' @param res data.table containing summary of TF perturbation effects on TF targets returned by \code{\link{TFtargetsINcmap}}
 ##' @param TFsels which TF to plot, defaults to all in \code{res}
+##' @param xlim passed to \link[ggplot2]{xlim}
 ##' @import data.table
 ##' @export plotTFtargetsINcmap
 plotTFtargetsINcmap = function(res, TFsels = NULL,
                                title = "TF that positively regulate their targets \n(shRNA induces shift to the left)",
-                               lab_text_size = 3, lab_text_y = 1.5, lab_text_x = 5, strip.text_size = 8) {
+                               lab_text_size = 2, lab_text_y = 1.2, lab_text_x = -2.2,
+                               strip.text_size = 8, xlim = c(-3.3, 3.3)) {
   if(is.null(TFsels)) TFsels = unique(c(res$TF_sh, res$TF_measured))
   plots = list()
   for (cellline in unique(res$cell_ids)) {
@@ -137,6 +139,7 @@ plotTFtargetsINcmap = function(res, TFsels = NULL,
       geom_density() + facet_grid(TF_measured_lab~TF_sh_lab) +
       geom_vline(aes(xintercept = TF_val), color = "#00BFC4", size = 2) +
       geom_vline(xintercept = 0, color = "black", size = 2) +
+      xlim(xlim) +
       geom_text(y = lab_text_y, x = lab_text_x,
                 aes(label = pvals), size = lab_text_size) +
       theme(strip.text.y = element_text(angle = 0, size = strip.text_size),
