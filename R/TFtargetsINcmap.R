@@ -71,7 +71,7 @@ TFtargetsINcmap = function(regulons, alternative = "less",
         vec = mat[, cell_line_ind & TF_sh_ind]
         x = vec[!target_ind]
         y = vec[target_ind]
-        TF_val = vec[target_ind][1]
+        TF_val = vec[TF_ind][1]
         w = ks.test(x, y, alternative = alternative)
         if(alternative == "less") GSEA_vec = -vec else GSEA_vec = vec
         GSEA_pval1 = gsEasy::gset(S = which(target_ind), N = NULL,
@@ -102,7 +102,7 @@ TFtargetsINcmap = function(regulons, alternative = "less",
                    pval = w$p.value, statistic = w$statistic,
                    GSEA_pval1 = GSEA_pval1, GSEA_pval10 = GSEA_pval10,
                    #GSEA_score1 = GSEA_score1, GSEA_score10 = GSEA_score10,
-                   size = regulons[TF %in% TF_measured, unique(size)]
+                   size = size
         )
       })
       Reduce(rbind, res)
@@ -130,16 +130,17 @@ TFtargetsINcmap = function(regulons, alternative = "less",
 plotTFtargetsINcmap = function(res, TFsels = NULL,
                                title = "TF that positively regulate their targets \n(shRNA induces shift to the left)",
                                lab_text_size = 2, lab_text_y = 1.2, lab_text_x = -2.2,
-                               strip.text_size = 8, xlim = c(-3.3, 3.3)) {
+                               strip.text_size = 8, vline_size = 1,
+                               xlim = c(-3.3, 3.3), ylim = c(0, 1.7)) {
   if(is.null(TFsels)) TFsels = unique(c(res$TF_sh, res$TF_measured))
   plots = list()
   for (cellline in unique(res$cell_ids)) {
     p = ggplot(res[cell_ids == cellline & TF_sh %in% TFsels & TF_measured %in% TFsels],
                aes(x = gene_exp, color = target)) +
       geom_density() + facet_grid(TF_measured_lab~TF_sh_lab) +
-      geom_vline(xintercept = 0, color = "black", size = 2) +
-      geom_vline(aes(xintercept = TF_val), color = "#00BFC4", size = 2) +
-      xlim(xlim) +
+      geom_vline(xintercept = 0, color = "black", size = vline_size) +
+      geom_vline(aes(xintercept = TF_val), color = "#00BFC4", size = vline_size) +
+      xlim(xlim) + ylim(ylim) +
       geom_text(y = lab_text_y, x = lab_text_x,
                 aes(label = pvals), size = lab_text_size) +
       theme(strip.text.y = element_text(angle = 0, size = strip.text_size),

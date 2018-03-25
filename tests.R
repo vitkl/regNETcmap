@@ -52,8 +52,8 @@ perturbTable(pdata = allIDs)
 duplicated = table(allIDs$pert_iname)[table(allIDs$pert_iname) > 1]
 duplicated
 duplicated_IDs = geneName2PerturbAnno(gene_names = names(duplicated), CMap_files = CMap_files,
-                                               is_touchstone = T, pert_types = "trt_oe",
-                                               pert_times = 96, cell_ids = "A375")
+                                      is_touchstone = T, pert_types = "trt_oe",
+                                      pert_times = 96, cell_ids = "A375")
 duplicated_IDs = duplicated_IDs[order(pert_iname)]
 duplicated_IDs[, pert_id_in_sig_id := grep(pert_id, sig_id, ignore.case = T, value = T), by = pert_id]
 duplicated_IDs = duplicated_IDs[sig_id == pert_id_in_sig_id]
@@ -91,3 +91,12 @@ for (i in 1:100) {
   plot(density(log10(row_med[order(row_var, decreasing = T)[i],])), main = i)
   Sys.sleep(1)
 }
+
+STAT3_OE_PC3 = readCMAPsubset(is_touchstone = T,
+               pert_types = "trt_oe",
+               pert_times = 96,
+               cell_ids = "PC3", CMap_files,
+               gene_names = "STAT3", keep_one_oe = "one",
+               landmark_only = F)
+STAT3_OE_PC3@mat[rownames(STAT3_OE_PC3@mat) %in% "6774",]
+STAT3_OE_PC3@mat[STAT3_OE_PC3@rdesc$pr_gene_symbol %in% "STAT3",]
