@@ -109,7 +109,9 @@ TFtargetsINcmap = function(regulons, alternative = "less",
     })
     Reduce(rbind, res)
   }, cell_ids,
-  export = list(regulons = regulons, gene_names = gene_names, cmap = cmap, alternative = alternative),
+  export = list(regulons = regulons, gene_names = gene_names,
+                cmap = cmap, alternative = alternative,
+                pert_types = pert_types),
   job_size = clustermq_job_size, memory = clustermq_memory)
   res = Reduce(rbind, res)
   res[, pvals := paste0("ks: ", signif(pval, 3), "\n",
