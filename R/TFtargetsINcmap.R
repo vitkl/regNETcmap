@@ -95,8 +95,8 @@ TFtargetsINcmap = function(regulons, alternative = "less",
         #                            significance_threshold = 1, log_dismiss = -10,
         #                            raw_score = TRUE)
         size = sum(target_ind)
-        data.table(target = ifelse(target_ind,"TF_targets", "other_genes"), TF_sh_lab = paste0(TF_sh," shRNA"),
-                   cell_ids = cell_line, TF_measured_lab = paste0(TF_measured, " regulon\ntargets:", size),
+        data.table(target = ifelse(target_ind,"TF_targets", "other_genes"), TF_sh_lab = paste0(TF_sh," ", paste0(pert_types, collapse = "|")),
+                   cell_ids = cell_line, TF_measured_lab = paste0(TF_measured, " regulon\ntargets (cmap):", size,"\n total:", regulons[TF %in% TF_measured, uniqueN(target_entrezgene)]),
                    TF_measured = TF_measured, TF_sh = TF_sh,
                    gene_exp = vec, TF_val = TF_val,
                    pval = w$p.value, statistic = w$statistic,

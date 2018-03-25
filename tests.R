@@ -93,10 +93,46 @@ for (i in 1:100) {
 }
 
 STAT3_OE_PC3 = readCMAPsubset(is_touchstone = T,
-               pert_types = "trt_oe",
+                              pert_types = "trt_oe",
                pert_times = 96,
                cell_ids = "PC3", CMap_files,
                gene_names = "STAT3", keep_one_oe = "one",
                landmark_only = F)
 STAT3_OE_PC3@mat[rownames(STAT3_OE_PC3@mat) %in% "6774",]
 STAT3_OE_PC3@mat[STAT3_OE_PC3@rdesc$pr_gene_symbol %in% "STAT3",]
+
+STAT1_OE_PC3 = readCMAPsubset(is_touchstone = T,
+                              pert_types = "trt_oe",
+                              pert_times = 96,
+                              cell_ids = "PC3", CMap_files,
+                              gene_names = "STAT1", keep_one_oe = "one",
+                              landmark_only = F)
+STAT1_OE_PC3@mat[rownames(STAT1_OE_PC3@mat) %in% "6772",]
+STAT1_OE_PC3@mat[STAT1_OE_PC3@rdesc$pr_gene_symbol %in% "STAT1",]
+
+MYC_SH_HT29 = readCMAPsubset(is_touchstone = T,
+                              pert_types = "trt_sh.cgs",
+                              pert_times = 96,
+                              cell_ids = "HT29", CMap_files,
+                              gene_names = "MYC", keep_one_oe = "one",
+                              landmark_only = F)
+MYC_SH_HT29@mat[rownames(MYC_SH_HT29@mat) %in% "4609",]
+MYC_SH_HT29@mat[MYC_SH_HT29@rdesc$pr_gene_symbol %in% "MYC",]
+
+STAT1_SH_HT29 = readCMAPsubset(is_touchstone = T,
+                             pert_types = "trt_sh.cgs",
+                             pert_times = 96,
+                             cell_ids = "HT29", CMap_files,
+                             gene_names = "STAT1", keep_one_oe = "one",
+                             landmark_only = F)
+STAT1_SH_HT29@mat[rownames(STAT1_SH_HT29@mat) %in% "6772",]
+STAT1_SH_HT29@mat[STAT1_SH_HT29@rdesc$pr_gene_symbol %in% "STAT1",]
+
+control_SH_HT29 = readCMAPsubset(is_touchstone = F,
+                               pert_types = "ctl_vector.cns",
+                               pert_times = 96,
+                               cell_ids = "HT29", CMap_files,
+                               gene_names = "EMPTY_VECTOR", keep_one_oe = "one",
+                               landmark_only = F)
+control_SH_HT29@mat[rownames(control_SH_HT29@mat) %in% "6772",]
+control_SH_HT29@mat[control_SH_HT29@rdesc$pr_gene_symbol %in% "STAT1",]
