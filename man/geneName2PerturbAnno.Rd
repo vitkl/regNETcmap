@@ -19,7 +19,7 @@ keep1OE(PerturbAnno, keep_one_oe = c("one", "other", "all")[1],
   pert_types = "trt_oe", CMap_files)
 }
 \arguments{
-\item{gene_names}{a character vector of HUGO gene names. Use \code{"all"} to select all perturbations.}
+\item{gene_names}{a character vector of HUGO gene names or other valid pert_iname. Use \code{"all"} to select all perturbations.}
 
 \item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
 

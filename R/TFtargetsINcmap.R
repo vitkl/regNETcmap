@@ -37,7 +37,7 @@ TFtargetsINcmap = function(regulons, alternative = "less",
 
 
   cmap = readCMAPsubset(is_touchstone = "all",
-                        pert_types = pert_types, #trt_sh.cgs trt_oe
+                        pert_types = pert_types,
                         pert_times = pert_times, cell_ids = cell_ids,
                         gene_names = gene_names, CMap_files = CMap_files,
                         keep_one_oe = keep_one_oe,
@@ -61,9 +61,9 @@ TFtargetsINcmap = function(regulons, alternative = "less",
   res = Q(function(cell_line){
     library(regNETcmap)
     library(gsEasy)
-    res = lapply(gene_names, function(TF_sh){
-      res = lapply(gene_names, function(TF_measured){
-        mat = cmap@mat
+    mat = cmap@mat
+    res = lapply(gene_names, function(TF_measured){
+      res = lapply(gene_names, function(TF_sh){
         TF_ind = cmap@rdesc$pr_gene_symbol %in% regulons[TF %in% TF_measured, TF]
         target_ind = rownames(mat) %in% regulons[TF %in% TF_measured, target_entrezgene]
         cell_line_ind = cmap@cdesc$cell_id %in% cell_line
@@ -79,24 +79,14 @@ TFtargetsINcmap = function(regulons, alternative = "less",
                                   max_its = 1e+05,
                                   significance_threshold = 1, log_dismiss = -10,
                                   raw_score = FALSE)
-        #GSEA_score1 = gsEasy::gset(S = which(target_ind), N = NULL,
-        #                           r = GSEA_vec, p = 1, min_its = 1000,
-        #                           max_its = 1e+05,
-        #                           significance_threshold = 1, log_dismiss = -10,
-        #                           raw_score = TRUE)
         GSEA_pval10 = gsEasy::gset(S = which(target_ind), N = NULL,
                                    r = GSEA_vec, p = 10, min_its = 1000,
                                    max_its = 1e+05,
                                    significance_threshold = 1, log_dismiss = -10,
                                    raw_score = FALSE)
-        #GSEA_score10 = gsEasy::gset(S = which(target_ind), N = NULL,
-        #                            r = GSEA_vec, p = 10, min_its = 1000,
-        #                            max_its = 1e+05,
-        #                            significance_threshold = 1, log_dismiss = -10,
-        #                            raw_score = TRUE)
         size = sum(target_ind)
         data.table(target = ifelse(target_ind,"TF_targets", "other_genes"), TF_sh_lab = paste0(TF_sh," ", paste0(pert_types, collapse = "|")),
-                   cell_ids = cell_line, TF_measured_lab = paste0(TF_measured, " regulon\ntargets (cmap):", size,"\n total:", regulons[TF %in% TF_measured, uniqueN(target_entrezgene)]),
+                   cell_ids = cell_line, TF_measured_lab = paste0(TF_measured, " regulon\ntargets (cmap):", size,"\n total:", regulons[TF %in% TF_measured, unique(size)]),
                    TF_measured = TF_measured, TF_sh = TF_sh,
                    gene_exp = vec, TF_val = TF_val,
                    pval = w$p.value, statistic = w$statistic,
@@ -106,6 +96,7 @@ TFtargetsINcmap = function(regulons, alternative = "less",
         )
       })
       Reduce(rbind, res)
+
     })
     Reduce(rbind, res)
   }, cell_ids,

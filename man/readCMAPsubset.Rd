@@ -20,7 +20,7 @@ readCMAPsubset(is_touchstone = c("all", T, F)[2],
 
 \item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
 
-\item{gene_names}{a character vector of HUGO gene names. Use \code{"all"} to select all perturbations.}
+\item{gene_names}{a character vector of HUGO gene names or other valid pert_iname. Use \code{"all"} to select all perturbations.}
 
 \item{keep_one_oe}{keep only one overexpression experiment per gene and condition. Applicable only when \code{pert_types = "trt_oe"}. Perturbations where sig_id matches pert_id are retained ("one"). To invert the selection use "other". To select all use "all"}
 

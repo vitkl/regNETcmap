@@ -8,7 +8,7 @@
 ##' @param pert_times a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_time)}
 ##' @param cell_ids a character vector of cell line names, query for available cell line names using \code{perturbTable(CMap_files, ~ cell_id)}
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
-##' @param gene_names a character vector of HUGO gene names. Use \code{"all"} to select all perturbations.
+##' @param gene_names a character vector of HUGO gene names or other valid pert_iname. Use \code{"all"} to select all perturbations.
 ##' @param keep_one_oe keep only one overexpression experiment per gene and condition. Applicable only when \code{pert_types = "trt_oe"}. Perturbations where sig_id matches pert_id are retained ("one"). To invert the selection use "other". To select all use "all"
 ##' @param landmark_only read only landmark genes (rows, measured). Details: https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/edit
 ##' @return object of class 'GCT' [package "cmapR"] with 7 slots containing z-score matrix, perturbation and feature details of the Connectivity map project
