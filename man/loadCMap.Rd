@@ -3,9 +3,9 @@
 \name{loadCMap}
 \alias{loadCMap}
 \alias{unzipCMapData}
-\title{Load Connectivity Map project data (2nd phase, Level 5)}
+\title{Load Connectivity Map project data (1st and 2nd phase, Level 4 and 5)}
 \usage{
-loadCMap(directory = getwd())
+loadCMap(directory = getwd(), level = 5, phase = 1)
 
 unzipCMapData(CMap_files)
 }
@@ -20,9 +20,9 @@ list of paths to Connectivity Map project files
 TRUE
 }
 \description{
-Download Connectivity Map project data to a specified directory. !! ATTENTION !! This is a 20 GB download. Details: \link{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE92742}. A description of the latest file, and a table listing the contents of the 'Broad_LINCS_auxiliary_datasets.tar.gz' file are updated in the following document: \link{https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/edit#heading=h.l6bq0r1aih50}
+Download Connectivity Map project data to a specified directory. !! ATTENTION !! This is a 5-20 GB download. Details: \link{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE70138}, \link{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE92742}. A description of the latest file, and a table listing the contents of the 'Broad_LINCS_auxiliary_datasets.tar.gz' file are updated in the following document: \link{https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/edit#heading=h.l6bq0r1aih50}
 
-Unzip Connectivity Map data (2nd phase, Level 5)
+Unzip Connectivity Map data
 }
 \details{
 LINCS aims to enable a functional understanding of biology by cataloging changes in gene expression and other cellular processes that occur when cells are exposed to a variety of perturbing agents. The Broad Institute LINCS Center for Transcriptomics contributes to this collaborative effort by application of the Connectivity Map concept. In brief, the study design involves the generation of a compendium of transcriptional expression data from cultured human cells treated with small-molecule and genetic loss/gain of function perturbagens. These measurements are made using the L1000 high-throughput gene-expression assay that enables data generation at an unprecedented scale. The data are processed through a computational system, that converts raw fluorescence intensities into differential gene expression signatures. The data at each stage of the pre-processing are available:

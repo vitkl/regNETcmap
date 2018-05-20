@@ -136,3 +136,20 @@ control_SH_HT29 = readCMAPsubset(is_touchstone = F,
                                landmark_only = F)
 control_SH_HT29@mat[rownames(control_SH_HT29@mat) %in% "6772",]
 control_SH_HT29@mat[control_SH_HT29@rdesc$pr_gene_symbol %in% "STAT1",]
+
+## phase 1 vs phase 2##
+# phase 1
+CMap_files = loadCMap(directory = "../regulatory_networks_by_cmap/data/cmap/",
+                      level = 4, phase = 1)
+fdata = openFeatureData(CMap_files)
+pdata = openpData(CMap_files)
+cell_info = openCellInfo(CMap_files)
+perturb_details = openPerturbDetails(CMap_files)
+
+# phase 2
+CMap_files2 = loadCMap(directory = "../regulatory_networks_by_cmap/data/cmap/",
+                      level = 4, phase = 2)
+fdata2 = openFeatureData(CMap_files2)
+cell_info2 = openCellInfo(CMap_files2)
+pdata2 = openpData(CMap_files2)
+perturb_details2 = openPerturbDetails(CMap_files2)

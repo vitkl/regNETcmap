@@ -8,13 +8,13 @@
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
 ##' @param is_touchstone logical, select only the perturbation data that is a part of the touchstone dataset (genes profiled across all 9 core cell lines)? Details: https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/
 ##' @param pert_types a character vector of perturbation types, query for available perturbation types using \code{perturbTable(CMap_files, ~ pert_type)}
-##' @param pert_times a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_time)}
+##' @param pert_itimes a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_itime)}
 ##' @param cell_ids a character vector of cell line names, query for available cell line names using \code{perturbTable(CMap_files, ~ cell_id)}
 ##' @return data.table containing the perturbation details from the Connectivity map project
 ##' @import data.table
 ##' @export geneName2PerturbAnno
 ##' @seealso \code{\link{openCellInfo}}, \code{\link{loadCMap}}, \code{\link{perturbTable}}
-geneName2PerturbAnno = function(gene_names = "TP53", CMap_files, is_touchstone = c("all", T, F), pert_types = c("trt_sh.cgs", "trt_oe"), pert_times = c("all"), cell_ids = c("all")) {
+geneName2PerturbAnno = function(gene_names = "TP53", CMap_files, is_touchstone = c("all", T, F), pert_types = c("trt_sh.cgs", "trt_oe"), pert_itimes = c("all"), cell_ids = c("all")) {
   pdata = openpData(CMap_files)
   if(pert_types == "all") pert_types = unique(as.character(pdata[,pert_type])) else pdata = pdata[pert_type %in% pert_types]
   if(!gene_names[1] == "all") pdata = pdata[pert_iname %in% gene_names]
@@ -28,8 +28,8 @@ geneName2PerturbAnno = function(gene_names = "TP53", CMap_files, is_touchstone =
   if(cell_ids[1] == "all") NULL else {
     PerturbAnno = PerturbAnno[cell_id %in% cell_ids]
   }
-  if(pert_times[1] == "all") NULL else {
-    PerturbAnno = PerturbAnno[pert_time %in% pert_times]
+  if(pert_itimes[1] == "all") NULL else {
+    PerturbAnno = PerturbAnno[pert_itime %in% pert_itimes]
   }
 
   PerturbAnno
@@ -46,7 +46,7 @@ geneName2PerturbAnno = function(gene_names = "TP53", CMap_files, is_touchstone =
 ##' @import data.table
 ##' @export anyGeneID2PerturbAnno
 ##' @seealso \code{\link{openCellInfo}}, \code{\link{loadCMap}}, \code{\link{perturbTable}}
-anyGeneID2PerturbAnno = function(keys = "Q9NZL3", CMap_files, org.db = c("UniProt.ws", "Homo.sapiens")[1], keytype = "UNIPROTKB", is_touchstone = c("all", T, F), pert_types = c("trt_sh.cgs", "trt_sh", "trt_sh.css"), pert_times = c("all"), cell_ids = c("all")){
+anyGeneID2PerturbAnno = function(keys = "Q9NZL3", CMap_files, org.db = c("UniProt.ws", "Homo.sapiens")[1], keytype = "UNIPROTKB", is_touchstone = c("all", T, F), pert_types = c("trt_sh.cgs", "trt_sh", "trt_sh.css"), pert_itimes = c("all"), cell_ids = c("all")){
   if(org.db == "UniProt.ws"){
     db = UniProt.ws::UniProt.ws(taxId = 9606)
     mapping = UniProt.ws::select(x = db, keys = keys, columns = c("GENES", keytype[1]), keytype = keytype[1])
@@ -61,7 +61,7 @@ anyGeneID2PerturbAnno = function(keys = "Q9NZL3", CMap_files, org.db = c("UniPro
     mapping$SYMBOL = NULL
   }
 
-  res = geneName2PerturbAnno(gene_names = unique(mapping$pert_iname), CMap_files = CMap_files, is_touchstone = is_touchstone, pert_types = pert_types, pert_times = pert_times, cell_ids = cell_ids)
+  res = geneName2PerturbAnno(gene_names = unique(mapping$pert_iname), CMap_files = CMap_files, is_touchstone = is_touchstone, pert_types = pert_types, pert_itimes = pert_itimes, cell_ids = cell_ids)
   res = res[mapping, on = "pert_iname", nomatch = 0]
   res
 }

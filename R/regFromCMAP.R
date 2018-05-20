@@ -28,14 +28,14 @@
 ##' # read all knockdown perturbations (3.4GB)
 ##' CMap_files = loadCMap(directory = "../regulatory_networks_by_cmap/data/cmap/")
 ##' # first, let's find cell lines and measurement times
-##' CMAPsub = readCMAPsubset(is_touchstone = T, pert_types = c("trt_sh.cgs"), pert_times = c("all"), cell_ids = c("all"), CMap_files)
+##' CMAPsub = readCMAPsubset(is_touchstone = T, pert_types = c("trt_sh.cgs"), pert_itimes = c("all"), cell_ids = c("all"), CMap_files)
 ##' pdata = as.data.table(CMAPsub@cdesc)
 ##' pdata$cell_id = as.character(pdata$cell_id)
-##' pdata$pert_time = as.character(pdata$pert_time)
+##' pdata$pert_itime = as.character(pdata$pert_itime)
 ##' pdata$pert_type = as.character(pdata$pert_type)
-##' perturbTable(formula = cell_id ~ pert_time, pdata = pdata)
+##' perturbTable(formula = cell_id ~ pert_itime, pdata = pdata)
 ##' # Pick one cell line and measurement time
-##' CMAPsub = readCMAPsubset(is_touchstone = T, pert_types = c("trt_sh.cgs"), pert_times = c("96"), cell_ids = c("A375"), CMap_files)
+##' CMAPsub = readCMAPsubset(is_touchstone = T, pert_types = c("trt_sh.cgs"), pert_itimes = c("96 h"), cell_ids = c("A375"), CMap_files)
 ##' # Read gene sets
 ##' trPhe_pair_map_file = "../regulatory_networks_by_cmap/results/phenotypes_genes_pvals_pairwise_mapped"
 ##' trPhe_pair_map_file.zip = paste0(trPhe_pair_map_file, ".gz")
@@ -158,7 +158,7 @@ regFromCMAP = function(cmap, gene_sets,
   pVals_pos$sign = "positive"
   pVals = rbind(pVals_neg, pVals_pos)
   # map signatures to genes
-  cmap_cdesc_temp = cmap_cdesc[,.(sig_id, pert_iname, pert_type, cell_id, pert_time, pert_idose)]
+  cmap_cdesc_temp = cmap_cdesc[,.(sig_id, pert_iname, pert_type, cell_id, pert_itime, pert_idose)]
   pVals = merge(x = pVals, y = cmap_cdesc_temp,
                 by = "sig_id",
                 all.x = T, all.y = F, allow.cartesian = TRUE)
@@ -254,7 +254,7 @@ regFromCMAPSingle = function(cmap_mat, gene_sets,
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
 ##' @param cell_ids a character vector of cell line names, query for available cell line names using \code{perturbTable(CMap_files, ~ cell_id)}
 ##' @param pert_types a character vector of perturbation types, query for available perturbation types using \code{perturbTable(CMap_files, ~ pert_type)}
-##' @param pert_times a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_time)}
+##' @param pert_itimes a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_itime)}
 ##' @param is_touchstone logical, select only the perturbation data that is a part of the touchstone dataset (genes profiled across all 9 core cell lines)? Details: https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/
 ##' @param min_cell_lines keep a gene=>gene-set interaction if at least \code{min_cell_lines} support it (inclusive)
 ##' @param max_cell_lines keep a gene=>gene-set interaction if at most \code{max_cell_lines} support it (inclusive)
@@ -268,7 +268,7 @@ regFromCMAPmcell = function(CMap_files, cell_ids = c("A375", "A549", "HA1E",
                                                      "HCC515", "HEPG2", "HT29",
                                                      "MCF7", "PC3"),
                             pert_types = c("trt_sh.cgs", "trt_oe", "trt_xpr"),#"ctl_untrt.cns", "ctl_vector.cns", "ctl_vehicle.cns"),
-                            pert_times = c("96"),
+                            pert_itimes = c("96 h"),
                             is_touchstone = T, # F (ctl is not touchstone)
                             min_cell_lines = 1, max_cell_lines = 9,
                             gene_sets,
@@ -283,7 +283,7 @@ regFromCMAPmcell = function(CMap_files, cell_ids = c("A375", "A549", "HA1E",
                             gene_names = c("all", unique(gene_sets$hgnc_symbol)[3:22])[1],
                             landmark_only = F) {
   if(!min_cell_lines <= max_cell_lines) stop("regFromCMAPmcell: min_cell_lines should be smaller or equal to max_cell_lines")
-  if(length(pert_times) != 1) stop("regFromCMAPmcell: only single perturbation time (pert_times) is allowed")
+  if(length(pert_itimes) != 1) stop("regFromCMAPmcell: only single perturbation time (pert_itimes) is allowed")
   types = perturbTable(CMap_files, ~ pert_type)
   pert_types = pert_types[pert_types %in% names(types)]
   lines = perturbTable(CMap_files, ~ cell_id)
@@ -292,7 +292,7 @@ regFromCMAPmcell = function(CMap_files, cell_ids = c("A375", "A549", "HA1E",
   pVals_cell = lapply(cell_ids, function(cell_line, pert_types){
     pVals_type = lapply(pert_types, function(pert_type, cell_line){
       CMAPsub = readCMAPsubset(is_touchstone = is_touchstone, pert_types = pert_type,
-                               pert_times = pert_times, cell_ids = cell_line,
+                               pert_itimes = pert_itimes, cell_ids = cell_line,
                                CMap_files, gene_names = gene_names, keep_one_oe = keep_one_oe,
                                landmark_only = landmark_only)
       regFromCMAP(cmap = CMAPsub,

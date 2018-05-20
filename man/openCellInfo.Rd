@@ -34,13 +34,13 @@ data.table containing the sample descriptions (pData) (\code{\link[Biobase]{pDat
 data.table containing the perturbation details from the Connectivity map project
 }
 \description{
-Read Connectivity Map project cell line data (2nd phase, Level 5)
+\code{openCellInfo} reads Connectivity Map project cell line data
 
-Read Connectivity Map project featureData (2nd phase, Level 5)
+\code{openFeatureData} reads Connectivity Map project featureData
 
-Read Connectivity Map project sample descriptions (pData) (2nd phase, Level 5)
+\code{openpData} read Connectivity Map project sample descriptions (pData)
 
-Read Connectivity Map project perturbation details (2nd phase, Level 5)
+\code{openPerturbDetails} read Connectivity Map project perturbation details
 }
 \author{
 Vitalii Kleshchevnikov

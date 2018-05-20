@@ -7,7 +7,7 @@
 TFtargetsINcmap(regulons, alternative = "less", pert_types = c("trt_oe"),
   cell_ids = c("A375", "A549", "HA1E", "HCC515", "HEPG2", "HT29", "MCF7",
   "PC3"), gene_names = c("NFKB1", "E2F1", "MYC", "TP53", "YY1", "JUN",
-  "STAT1", "STAT3"), pert_times = c("96"), CMap_files,
+  "STAT1", "STAT3"), pert_itimes = c("96 h"), CMap_files,
   keep_one_oe = c("one", "other", "all")[1], landmark_only = F,
   clustermq_memory = 2000, clustermq_job_size = 1,
   min_targets_in_cmap = 3, force_gene_names = F)
@@ -23,7 +23,7 @@ TFtargetsINcmap(regulons, alternative = "less", pert_types = c("trt_oe"),
 
 \item{gene_names}{a character vector of HUGO gene names. Use \code{"all"} to select all perturbations.}
 
-\item{pert_times}{a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_time)}}
+\item{pert_itimes}{a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_itime)}}
 
 \item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
 

@@ -5,7 +5,7 @@
 \title{Read a subsets of perturbations (Connectivity Map data, all pertubages, different conditions)}
 \usage{
 readCMAPsubset(is_touchstone = c("all", T, F)[2],
-  pert_types = c("trt_sh.cgs", "trt_oe"), pert_times = c("all"),
+  pert_types = c("trt_sh.cgs", "trt_oe"), pert_itimes = c("all"),
   cell_ids = c("all"), CMap_files, gene_names = "all",
   keep_one_oe = c("one", "other", "all")[1], landmark_only = F)
 }
@@ -14,7 +14,7 @@ readCMAPsubset(is_touchstone = c("all", T, F)[2],
 
 \item{pert_types}{a character vector of perturbation types, query for available perturbation types using \code{perturbTable(CMap_files, ~ pert_type)}}
 
-\item{pert_times}{a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_time)}}
+\item{pert_itimes}{a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_itime)}}
 
 \item{cell_ids}{a character vector of cell line names, query for available cell line names using \code{perturbTable(CMap_files, ~ cell_id)}}
 
@@ -40,7 +40,7 @@ allIDs = geneName2PerturbAnno(gene_names = "all", CMap_files = CMap_files, is_to
 perturbTable(pdata = allIDs)
 CMAP = readCMAP(PerturbAnno = allIDs, CMap_files = CMap_files)
 # fast way to read the same data
-CMAPsub = readCMAPsubset(is_touchstone = T, pert_types = c("trt_sh.cgs"), pert_times = c("all"), cell_ids = c("all"), CMap_files)
+CMAPsub = readCMAPsubset(is_touchstone = T, pert_types = c("trt_sh.cgs"), pert_itimes = c("all"), cell_ids = c("all"), CMap_files)
 perturbTable(pdata = as.data.table(CMAPsub@cdesc))
 }
 \seealso{

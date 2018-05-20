@@ -19,13 +19,14 @@ regFromCMAPSingle(cmap_mat, gene_sets, gene_set_name, method = c("ks",
 
 regFromCMAPmcell(CMap_files, cell_ids = c("A375", "A549", "HA1E", "HCC515",
   "HEPG2", "HT29", "MCF7", "PC3"), pert_types = c("trt_sh.cgs", "trt_oe",
-  "trt_xpr"), pert_times = c("96"), is_touchstone = T, min_cell_lines = 1,
-  max_cell_lines = 9, gene_sets, gene_set_id_col = "phenotypes",
-  gene_id_col = "entrezgene", method = c("ks", "wilcox", "GSEA")[1],
-  GSEA_weighting = 1, keep_one_oe = c("one", "other", "all")[1],
-  cutoff = 0.05, pval_corr_method = "fdr", renormalise = F,
-  n_cores = detectCores() - 1, gene_names = c("all",
-  unique(gene_sets$hgnc_symbol)[3:22])[1], landmark_only = F)
+  "trt_xpr"), pert_itimes = c("96 h"), is_touchstone = T,
+  min_cell_lines = 1, max_cell_lines = 9, gene_sets,
+  gene_set_id_col = "phenotypes", gene_id_col = "entrezgene",
+  method = c("ks", "wilcox", "GSEA")[1], GSEA_weighting = 1,
+  keep_one_oe = c("one", "other", "all")[1], cutoff = 0.05,
+  pval_corr_method = "fdr", renormalise = F, n_cores = detectCores() - 1,
+  gene_names = c("all", unique(gene_sets$hgnc_symbol)[3:22])[1],
+  landmark_only = F)
 }
 \arguments{
 \item{cmap}{object of class 'GCT' [package "cmapR"] with 7 slots containing z-score matrix, perturbation and feature details of the Connectivity map project. Returned by \code{\link{readCMAP}} or \code{\link{readCMAPsubset}}}
@@ -68,7 +69,7 @@ regFromCMAPmcell(CMap_files, cell_ids = c("A375", "A549", "HA1E", "HCC515",
 
 \item{pert_types}{a character vector of perturbation types, query for available perturbation types using \code{perturbTable(CMap_files, ~ pert_type)}}
 
-\item{pert_times}{a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_time)}}
+\item{pert_itimes}{a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_itime)}}
 
 \item{is_touchstone}{logical, select only the perturbation data that is a part of the touchstone dataset (genes profiled across all 9 core cell lines)? Details: https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/}
 
@@ -102,14 +103,14 @@ library(R.utils)
 # read all knockdown perturbations (3.4GB)
 CMap_files = loadCMap(directory = "../regulatory_networks_by_cmap/data/cmap/")
 # first, let's find cell lines and measurement times
-CMAPsub = readCMAPsubset(is_touchstone = T, pert_types = c("trt_sh.cgs"), pert_times = c("all"), cell_ids = c("all"), CMap_files)
+CMAPsub = readCMAPsubset(is_touchstone = T, pert_types = c("trt_sh.cgs"), pert_itimes = c("all"), cell_ids = c("all"), CMap_files)
 pdata = as.data.table(CMAPsub@cdesc)
 pdata$cell_id = as.character(pdata$cell_id)
-pdata$pert_time = as.character(pdata$pert_time)
+pdata$pert_itime = as.character(pdata$pert_itime)
 pdata$pert_type = as.character(pdata$pert_type)
-perturbTable(formula = cell_id ~ pert_time, pdata = pdata)
+perturbTable(formula = cell_id ~ pert_itime, pdata = pdata)
 # Pick one cell line and measurement time
-CMAPsub = readCMAPsubset(is_touchstone = T, pert_types = c("trt_sh.cgs"), pert_times = c("96"), cell_ids = c("A375"), CMap_files)
+CMAPsub = readCMAPsubset(is_touchstone = T, pert_types = c("trt_sh.cgs"), pert_itimes = c("96 h"), cell_ids = c("A375"), CMap_files)
 # Read gene sets
 trPhe_pair_map_file = "../regulatory_networks_by_cmap/results/phenotypes_genes_pvals_pairwise_mapped"
 trPhe_pair_map_file.zip = paste0(trPhe_pair_map_file, ".gz")

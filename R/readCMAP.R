@@ -20,8 +20,8 @@
 readCMAP = function(PerturbAnno,
                     CMap_files,
                     landmark_only = F) {
-  unzipped = substr(CMap_files$sig_level5[2],
-                    1, nchar(CMap_files$sig_level5[2])-3)
+  unzipped = substr(CMap_files$sig[2],
+                    1, nchar(CMap_files$sig[2])-3)
   if(!file.exists(unzipped)) unzipCMapData(CMap_files)
   fdata = openFeatureData(CMap_files)
   if(landmark_only) fdata = fdata[pr_is_lm == 1]

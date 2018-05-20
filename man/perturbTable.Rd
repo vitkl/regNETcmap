@@ -4,17 +4,17 @@
 \alias{perturbTable}
 \title{Summarise available perturbation data annotations using base::table}
 \usage{
-perturbTable(CMap_dirs, formula = pert_type ~ pert_time, pert_ids = NULL,
+perturbTable(CMap_files, formula = pert_type ~ pert_itime, pert_ids = NULL,
   pdata = NULL)
 }
 \arguments{
-\item{formula}{specify which 2 columns to call \code{\link[base]{table}} on: \code{pert_type ~ pert_time} or \code{type ~ pert_type} to tabulate single column}
+\item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
+
+\item{formula}{specify which 2 columns to call \code{\link[base]{table}} on: \code{pert_type ~ pert_itime} or \code{type ~ pert_type} to tabulate single column}
 
 \item{pert_ids}{data.table (optional) a way to select a subset of perturbation data annotations. data.table should be the output of \code{\link{geneName2PerturbAnno}} or \code{\link{geneID2PerturbAnno}} (should contain distil_id column, a unique perturbation ID)}
 
-\item{pdata}{(optional) data.table, the output of \code{\link{openpData}}. By default \code{perturbTable} reads Cmap file (path provided in CMap_dirs), for multiple test it can be useful to supply data.table.}
-
-\item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
+\item{pdata}{(optional) data.table, the output of \code{\link{openpData}}. By default \code{perturbTable} reads Cmap file (path provided in CMap_files), for multiple test it can be useful to supply data.table.}
 }
 \value{
 data.table containing the perturbation details from the Connectivity map project

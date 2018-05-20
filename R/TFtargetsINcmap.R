@@ -8,7 +8,7 @@
 ##' @param pert_types a character vector of perturbation types, query for available perturbation types using \code{perturbTable(CMap_files, ~ pert_type)}
 ##' @param cell_ids a character vector of cell line names, query for available cell line names using \code{perturbTable(CMap_files, ~ cell_id)}
 ##' @param gene_names a character vector of HUGO gene names. Use \code{"all"} to select all perturbations.
-##' @param pert_times a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_time)}
+##' @param pert_itimes a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_itime)}
 ##' @param CMap_files a list of directories and urls produced by \code{\link{loadCMap}}
 ##' @param keep_one_oe keep only one overexpression experiment per gene and condition. Applicable only when \code{pert_types = "trt_oe"}. Perturbations where sig_id matches pert_id are retained ("one"). To invert the selection use "other". To select all use "all"
 ##' @param landmark_only look only at landmark genes. Details: https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/edit
@@ -28,7 +28,7 @@ TFtargetsINcmap = function(regulons, alternative = "less",
                                         "HEPG2", "HT29","MCF7", "PC3"),
                            gene_names = c("NFKB1", "E2F1", "MYC", "TP53",
                                           "YY1", "JUN", "STAT1", "STAT3"),
-                           pert_times = c("96"),
+                           pert_itimes = c("96 h"),
                            CMap_files, keep_one_oe = c("one", "other", "all")[1],
                            landmark_only = F,
                            clustermq_memory = 2000, clustermq_job_size = 1,
@@ -38,7 +38,7 @@ TFtargetsINcmap = function(regulons, alternative = "less",
 
   cmap = readCMAPsubset(is_touchstone = "all",
                         pert_types = pert_types,
-                        pert_times = pert_times, cell_ids = cell_ids,
+                        pert_itimes = pert_itimes, cell_ids = cell_ids,
                         gene_names = gene_names, CMap_files = CMap_files,
                         keep_one_oe = keep_one_oe,
                         landmark_only = landmark_only)

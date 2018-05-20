@@ -8,12 +8,12 @@
 \usage{
 geneName2PerturbAnno(gene_names = "TP53", CMap_files,
   is_touchstone = c("all", T, F), pert_types = c("trt_sh.cgs", "trt_oe"),
-  pert_times = c("all"), cell_ids = c("all"))
+  pert_itimes = c("all"), cell_ids = c("all"))
 
 anyGeneID2PerturbAnno(keys = "Q9NZL3", CMap_files, org.db = c("UniProt.ws",
   "Homo.sapiens")[1], keytype = "UNIPROTKB", is_touchstone = c("all", T, F),
   pert_types = c("trt_sh.cgs", "trt_sh", "trt_sh.css"),
-  pert_times = c("all"), cell_ids = c("all"))
+  pert_itimes = c("all"), cell_ids = c("all"))
 
 keep1OE(PerturbAnno, keep_one_oe = c("one", "other", "all")[1],
   pert_types = "trt_oe", CMap_files)
@@ -27,7 +27,7 @@ keep1OE(PerturbAnno, keep_one_oe = c("one", "other", "all")[1],
 
 \item{pert_types}{a character vector of perturbation types, query for available perturbation types using \code{perturbTable(CMap_files, ~ pert_type)}}
 
-\item{pert_times}{a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_time)}}
+\item{pert_itimes}{a character vector of perturbation times, query for available perturbation times using \code{perturbTable(CMap_files, ~ pert_itime)}}
 
 \item{cell_ids}{a character vector of cell line names, query for available cell line names using \code{perturbTable(CMap_files, ~ cell_id)}}
 

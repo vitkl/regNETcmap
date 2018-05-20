@@ -12,13 +12,13 @@
 ##' @export keep1OE
 keep1OE = function(PerturbAnno, keep_one_oe = c("one", "other", "all")[1], pert_types = "trt_oe", CMap_files) {
   duplicated = PerturbAnno[pert_type == pert_types[1]]
-  duplicated[, n_per_iname := uniqueN(sig_id), by = .(pert_iname, pert_type, cell_id, pert_time)]
+  duplicated[, n_per_iname := uniqueN(sig_id), by = .(pert_iname, pert_type, cell_id, pert_itime)]
   duplicated = duplicated[n_per_iname > 1]
   if(nrow(duplicated) >= 1){
     duplicated_IDs = geneName2PerturbAnno(gene_names = unique(duplicated$pert_iname), CMap_files = CMap_files,
                                           is_touchstone = as.logical(unique(duplicated$is_touchstone)),
                                           pert_types = pert_types[1],
-                                          pert_times = unique(as.character(duplicated$pert_time)),
+                                          pert_itimes = unique(as.character(duplicated$pert_itime)),
                                           cell_ids = unique(as.character(duplicated$cell_id)))
     duplicated_IDs = duplicated_IDs[order(pert_iname)]
     duplicated_IDs[, pert_id_in_sig_id := grep(pert_id, sig_id, ignore.case = T, value = T), by = pert_id]
@@ -32,7 +32,7 @@ keep1OE = function(PerturbAnno, keep_one_oe = c("one", "other", "all")[1], pert_
     PerturbAnno = PerturbAnno[!(pert_iname %in% duplicated$pert_iname &
                                   pert_type %in% duplicated$pert_type &
                                   cell_id %in% duplicated$cell_id &
-                                  pert_time %in% duplicated$pert_time)]
+                                  pert_itime %in% duplicated$pert_itime)]
     PerturbAnno = rbind(PerturbAnno, duplicated_IDs)
   }
 
