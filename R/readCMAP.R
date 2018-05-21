@@ -25,9 +25,11 @@ readCMAP = function(PerturbAnno,
   if(!file.exists(unzipped)) unzipCMapData(CMap_files)
   fdata = openFeatureData(CMap_files)
   if(landmark_only) fdata = fdata[pr_is_lm == 1]
-  CMAP = parse.gctx(fname = unzipped, rid = fdata$pr_gene_id, cid = PerturbAnno$sig_id, set_annot_rownames = F,
+  if(CMap_files$level == 4) key_field = "inst_id"
+  if(CMap_files$level == 5) key_field = "sig_id"
+  CMAP = parse.gctx(fname = unzipped, rid = fdata$pr_gene_id, cid = unlist(PerturbAnno[,key_field,with = F]), set_annot_rownames = F,
              matrix_only = F)
-  if(ncol(CMAP@cdesc) == 1) CMAP = annotate.gct(CMAP, PerturbAnno, dim="col", keyfield="sig_id")
+  if(ncol(CMAP@cdesc) == 1) CMAP = annotate.gct(CMAP, PerturbAnno, dim="col", keyfield=key_field)
   if(ncol(CMAP@rdesc) == 1) CMAP = annotate.gct(CMAP, fdata, dim="row", keyfield="pr_gene_id")
   CMAP
 }

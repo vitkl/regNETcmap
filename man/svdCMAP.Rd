@@ -14,7 +14,7 @@ svdCMAP(CMap_files, return_PCs = T, is_touchstone = "all",
   pert_types = c("trt_sh.cgs", "trt_oe", "trt_cp", "trt_lig", "trt_oe.mut",
   "trt_xpr", "trt_sh.css", "ctl_vehicle.cns", "ctl_vector.cns",
   "ctl_untrt.cns"), pert_itimes = c("all"), cell_ids = c("all"),
-  gene_names = c("all"), keep_one_oe = "all", landmark_only = F)
+  gene_names = c("all"), keep_one_oe = "all", landmark_only = F, ...)
 }
 \arguments{
 \item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
@@ -40,6 +40,8 @@ svdCMAP(CMap_files, return_PCs = T, is_touchstone = "all",
 \item{keep_one_oe}{keep only one overexpression experiment per gene and condition. Applicable only when \code{pert_types = "trt_oe"}. Perturbations where sig_id matches pert_id are retained ("one"). To invert the selection use "other". To select all use "all"}
 
 \item{landmark_only}{read only landmark genes (rows, measured). Details: https://docs.google.com/document/d/1q2gciWRhVCAAnlvF2iRLuJ7whrGP6QjpsCMq1yWz7dU/edit}
+
+\item{...}{passed to \link[base]{svd}: \code{nu} and \code{nv}}
 
 \item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}
 
