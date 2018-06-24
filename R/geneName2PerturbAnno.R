@@ -16,10 +16,17 @@
 ##' @seealso \code{\link{openCellInfo}}, \code{\link{loadCMap}}, \code{\link{perturbTable}}
 geneName2PerturbAnno = function(gene_names = "TP53", CMap_files, is_touchstone = c("all", T, F), pert_types = c("trt_sh.cgs", "trt_oe"), pert_itimes = c("all"), cell_ids = c("all")) {
   pdata = openpData(CMap_files)
-  if(pert_types == "all") pert_types = unique(as.character(pdata[,pert_type])) else pdata = pdata[pert_type %in% pert_types]
+  if(pert_types[1] == "all") pert_types = unique(as.character(pdata[,pert_type])) else pdata = pdata[pert_type %in% pert_types]
   if(!gene_names[1] == "all") pdata = pdata[pert_iname %in% gene_names]
+  # Get touchstone annotation
   pdetails = openPerturbDetails(CMap_files)[,.(pert_id, pert_type, is_touchstone)][pert_type %in% pert_types]
-  PerturbAnno = pdata[pdetails, on = c("pert_id", "pert_type"), nomatch = 0]
+  # Add touchstone annotation to perturbation data
+  PerturbAnno = merge(pdata, pdetails, by = c("pert_id", "pert_type"), all.x = T, all.y = F)
+  # Fix missing values
+  PerturbAnno[, is_touchstone := as.numeric(is_touchstone)]
+  PerturbAnno[is.na(is_touchstone), is_touchstone := 0]
+  PerturbAnno[, is_touchstone := as.factor(is_touchstone)]
+  # PerturbAnno = pdata[pdetails, on = c("pert_id", "pert_type"), nomatch = 0]
 
   if(is_touchstone == "all") NULL else {
     if(is_touchstone) PerturbAnno = PerturbAnno[is_touchstone == 1] else

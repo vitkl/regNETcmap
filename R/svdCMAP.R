@@ -101,10 +101,11 @@ svdCMAP = function(CMap_files, return_PCs = T, is_touchstone = "all",
                     digest::sha1(x = paste0(c(is_touchstone, pert_types, pert_itimes,
                                               cell_ids, gene_names, keep_one_oe, landmark_only))))
   filepath = R.utils::filePath(dirname(CMap_files$sig[2]), filename)
-  filepath.svd = paste0(filepath, ".svd")
+  filepath.svd = paste0(filepath, ".svd.RData")
 
   if(file.exists(filepath.svd)){
-    load(filepath)
+    load(filepath.svd)
+    if(return_PCs) return(svd_obj) else message("svd decomposition was already performed on this dataset: use return_PCs = T to obtain results")
   } else {
     cmap = readCMAPsubset(is_touchstone = is_touchstone, pert_types = pert_types,
                           pert_itimes = pert_itimes, cell_ids = cell_ids, CMap_files,
@@ -125,6 +126,6 @@ svdCMAP = function(CMap_files, return_PCs = T, is_touchstone = "all",
     rownames(svd_obj$u) = rownames_cmap
 
     save(svd_obj, file = filepath.svd)
-    if(return_PCs) return(svd_obj) else message("svd decomposition was already performed on this dataset: use return_PCs = T to obtain results")
+    if(return_PCs) return(svd_obj)
   }
 }
