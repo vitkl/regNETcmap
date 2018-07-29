@@ -9,5 +9,5 @@ License: GNU v3
 Encoding: UTF-8
 LazyData: true
 Depends: cmapR, data.table, rhdf5
-Imports: downloader, biomaRt, UniProt.ws
+Imports: downloader, biomaRt, UniProt.ws, clustermq, gsEasy
 RoxygenNote: 6.0.1.9000
