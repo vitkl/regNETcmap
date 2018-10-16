@@ -79,7 +79,7 @@ loadCMap = function(directory = getwd(), level = 5, phase = 1){
     zipped = CMap_files[[i]][2]
     unzipped = substr(CMap_files[[i]][2],
                         1, nchar(CMap_files[[i]][2])-3)
-    if(!file.exists(CMap_files[[i]][2]) & !file.exists(CMap_files[[i]][2])) {
+    if(!file.exists(zipped) & !file.exists(unzipped)) {
       message(paste0("downloading ", names(CMap_files[i]), " from ", CMap_files[[i]][1]))
       download.file(CMap_files[[i]][1], CMap_files[[i]][2])
     }

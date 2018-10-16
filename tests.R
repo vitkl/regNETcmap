@@ -5,6 +5,8 @@ library(devtools)
 document()
 install()
 
+devtools::install_github("vitkl/regNETcmap", dependencies = T)
+
 #devtools::install_github("cmap/cmapR")
 #devtools::install_github("vitkl/regNETcmap")
 #source("https://bioconductor.org/biocLite.R")
