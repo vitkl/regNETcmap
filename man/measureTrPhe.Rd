@@ -10,8 +10,8 @@
 measureTrPhe(data, method = c("wilcox", "ks")[1], mode = c("pairwise",
   "one_vs_all")[1], cutoff = 1, assays_matrix_name = "norm_counts",
   colData_cluster_col = "clusters", pval_corr_method = "fdr",
-  low_exprs_threshold = 0.1, low_exprs_cells = 6, n_cores = detectCores()
-  - 1)
+  low_exprs_threshold = 0.1, low_exprs_cells = 6,
+  n_cores = detectCores() - 1)
 
 measureTrPheSingle(norm_counts, combinations, combinations_ind = 1,
   cutoff = 0.05, pval_corr_method = "fdr", low_exprs_threshold = 1,

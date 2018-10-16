@@ -17,15 +17,15 @@ regFromCMAPSingle(cmap_mat, gene_sets, gene_set_name, method = c("ks",
   "wilcox", "GSEA")[1], GSEA_weighting = 1, alternative = c("less",
   "greater")[1])
 
-regFromCMAPmcell(CMap_files, cell_ids = c("A375", "A549", "HA1E", "HCC515",
-  "HEPG2", "HT29", "MCF7", "PC3"), pert_types = c("trt_sh.cgs", "trt_oe",
-  "trt_xpr"), pert_itimes = c("96 h"), is_touchstone = T,
+regFromCMAPmcell(CMap_files, cell_ids = c("A375", "A549", "HA1E",
+  "HCC515", "HEPG2", "HT29", "MCF7", "PC3"), pert_types = c("trt_sh.cgs",
+  "trt_oe", "trt_xpr"), pert_itimes = c("96 h"), is_touchstone = T,
   min_cell_lines = 1, max_cell_lines = 9, gene_sets,
   gene_set_id_col = "phenotypes", gene_id_col = "entrezgene",
   method = c("ks", "wilcox", "GSEA")[1], GSEA_weighting = 1,
   keep_one_oe = c("one", "other", "all")[1], cutoff = 0.05,
-  pval_corr_method = "fdr", renormalise = F, n_cores = detectCores() - 1,
-  gene_names = c("all", unique(gene_sets$hgnc_symbol)[3:22])[1],
+  pval_corr_method = "fdr", renormalise = F, n_cores = detectCores()
+  - 1, gene_names = c("all", unique(gene_sets$hgnc_symbol)[3:22])[1],
   landmark_only = F)
 }
 \arguments{

@@ -7,8 +7,8 @@
 plotTFtargetsINcmap(res, TFsels = NULL,
   title = "TF that positively regulate their targets \\n(shRNA induces shift to the left)",
   lab_text_size = 2, lab_text_y = 1.2, lab_text_x = -2.2,
-  strip.text_size = 8, vline_size = 1, xlim = c(-3.3, 3.3), ylim = c(0,
-  1.7))
+  strip.text_size = 8, vline_size = 1, xlim = c(-3.3, 3.3),
+  ylim = c(0, 1.7))
 }
 \arguments{
 \item{res}{data.table containing summary of TF perturbation effects on TF targets returned by \code{\link{TFtargetsINcmap}}}

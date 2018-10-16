@@ -7,13 +7,13 @@
 \title{Get Connectivity Map perturbation annotations for genes of interest, cell line and perturbation types and times}
 \usage{
 geneName2PerturbAnno(gene_names = "TP53", CMap_files,
-  is_touchstone = c("all", T, F), pert_types = c("trt_sh.cgs", "trt_oe"),
-  pert_itimes = c("all"), cell_ids = c("all"))
+  is_touchstone = c("all", T, F), pert_types = c("trt_sh.cgs",
+  "trt_oe"), pert_itimes = c("all"), cell_ids = c("all"))
 
-anyGeneID2PerturbAnno(keys = "Q9NZL3", CMap_files, org.db = c("UniProt.ws",
-  "Homo.sapiens")[1], keytype = "UNIPROTKB", is_touchstone = c("all", T, F),
-  pert_types = c("trt_sh.cgs", "trt_sh", "trt_sh.css"),
-  pert_itimes = c("all"), cell_ids = c("all"))
+anyGeneID2PerturbAnno(keys = "Q9NZL3", CMap_files,
+  org.db = c("UniProt.ws", "Homo.sapiens")[1], keytype = "UNIPROTKB",
+  is_touchstone = c("all", T, F), pert_types = c("trt_sh.cgs",
+  "trt_sh", "trt_sh.css"), pert_itimes = c("all"), cell_ids = c("all"))
 
 keep1OE(PerturbAnno, keep_one_oe = c("one", "other", "all")[1],
   pert_types = "trt_oe", CMap_files)

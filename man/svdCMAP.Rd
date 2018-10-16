@@ -6,15 +6,16 @@
 \title{Calculate and remove principal components from Connectivity map data}
 \usage{
 reconstructCMAP(CMap_files, remove_PCs = "none", return_PCs = T,
-  return_CMAP = T, save_CMAP = F, pert_types = c("trt_sh.cgs", "trt_oe",
-  "trt_cp", "trt_lig", "trt_oe.mut", "trt_xpr", "trt_sh.css", "ctl_vehicle.cns",
-  "ctl_vector.cns", "ctl_untrt.cns"))
+  return_CMAP = T, save_CMAP = F, pert_types = c("trt_sh.cgs",
+  "trt_oe", "trt_cp", "trt_lig", "trt_oe.mut", "trt_xpr", "trt_sh.css",
+  "ctl_vehicle.cns", "ctl_vector.cns", "ctl_untrt.cns"))
 
 svdCMAP(CMap_files, return_PCs = T, is_touchstone = "all",
-  pert_types = c("trt_sh.cgs", "trt_oe", "trt_cp", "trt_lig", "trt_oe.mut",
-  "trt_xpr", "trt_sh.css", "ctl_vehicle.cns", "ctl_vector.cns",
-  "ctl_untrt.cns"), pert_itimes = c("all"), cell_ids = c("all"),
-  gene_names = c("all"), keep_one_oe = "all", landmark_only = F, ...)
+  pert_types = c("trt_sh.cgs", "trt_oe", "trt_cp", "trt_lig",
+  "trt_oe.mut", "trt_xpr", "trt_sh.css", "ctl_vehicle.cns",
+  "ctl_vector.cns", "ctl_untrt.cns"), pert_itimes = c("all"),
+  cell_ids = c("all"), gene_names = c("all"), keep_one_oe = "all",
+  landmark_only = F, ...)
 }
 \arguments{
 \item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}

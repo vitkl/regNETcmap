@@ -4,8 +4,8 @@
 \alias{perturbTable}
 \title{Summarise available perturbation data annotations using base::table}
 \usage{
-perturbTable(CMap_files, formula = pert_type ~ pert_itime, pert_ids = NULL,
-  pdata = NULL)
+perturbTable(CMap_files, formula = pert_type ~ pert_itime,
+  pert_ids = NULL, pdata = NULL)
 }
 \arguments{
 \item{CMap_files}{a list of directories and urls produced by \code{\link{loadCMap}}}

@@ -4,13 +4,14 @@
 \alias{TFtargetsINcmap}
 \title{Summarise TF targets enrichment when TF perturbed in Connectivity Map}
 \usage{
-TFtargetsINcmap(regulons, alternative = "less", pert_types = c("trt_oe"),
-  cell_ids = c("A375", "A549", "HA1E", "HCC515", "HEPG2", "HT29", "MCF7",
-  "PC3"), gene_names = c("NFKB1", "E2F1", "MYC", "TP53", "YY1", "JUN",
-  "STAT1", "STAT3"), pert_itimes = c("96 h"), CMap_files,
-  keep_one_oe = c("one", "other", "all")[1], landmark_only = F,
-  clustermq_memory = 2000, clustermq_job_size = 1,
-  min_targets_in_cmap = 3, force_gene_names = F)
+TFtargetsINcmap(regulons, alternative = "less",
+  pert_types = c("trt_oe"), cell_ids = c("A375", "A549", "HA1E",
+  "HCC515", "HEPG2", "HT29", "MCF7", "PC3"), gene_names = c("NFKB1",
+  "E2F1", "MYC", "TP53", "YY1", "JUN", "STAT1", "STAT3"),
+  pert_itimes = c("96 h"), CMap_files, keep_one_oe = c("one", "other",
+  "all")[1], landmark_only = F, clustermq_memory = 2000,
+  clustermq_job_size = 1, min_targets_in_cmap = 3,
+  force_gene_names = F)
 }
 \arguments{
 \item{regulons}{data.table containing TF regulons (TF and target columns)}
