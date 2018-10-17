@@ -103,7 +103,7 @@ loadCMap = function(directory = getwd(), level = 5, phase = 1, landmark_only = T
     if(file_not_found) {
       message(paste0("downloading ", names(CMap_files[i]), " from ", CMap_files[[i]][1]))
       download.file(CMap_files[[i]][1], CMap_files[[i]][2])
-    } else if(land_file_not_found) {
+    } else if(land_file_not_found & i==1) {
       message("Full sig file found locally. Use writeLandMarkOnlyFile(CMap_files) to generate and write .gctx file containing only landmark genes. This requires about 32 GB of RAM.")
     }
   }
