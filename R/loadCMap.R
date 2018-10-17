@@ -88,23 +88,25 @@ loadCMap = function(directory = getwd(), level = 5, phase = 1, landmark_only = T
     file_not_found = !file.exists(zipped) & !file.exists(unzipped)
     if(i == 1 & landmark_only){
       # do not download data when landmark_only is TRUE and landmark_only data is present, warn and suggest to produce this data when data not present
-      zipped = CMap_files[[i]][3]
-      unzipped = substr(CMap_files[[i]][3],
-                        1, nchar(CMap_files[[i]][3])-3)
-      file_not_found = !file.exists(zipped) & !file.exists(unzipped)
-      if(file_not_found) {
-        warning("Landmark_only file is not found, looking for / downloading full sig file. Following download, use writeLandMarkOnlyFile(CMap_files) to generate and write .gctx file containing only landmark genes. This requires about 32 GB of RAM.")
+      land_zipped = CMap_files[[i]][3]
+      land_unzipped = substr(CMap_files[[i]][3],
+                             1, nchar(CMap_files[[i]][3])-3)
+      land_file_not_found = !file.exists(land_zipped) & !file.exists(land_unzipped)
+      if(land_file_not_found) {
+        message("Landmark_only file is not found, looking for / downloading full sig file...")
       } else {
         # change CMap_files[[i]][2] to landmark file so that other functions read the correct file
         CMap_files[[i]][2] = CMap_files[[i]][3]
+        file_not_found = land_file_not_found
       }
     }
     if(file_not_found) {
       message(paste0("downloading ", names(CMap_files[i]), " from ", CMap_files[[i]][1]))
       download.file(CMap_files[[i]][1], CMap_files[[i]][2])
+    } else if(land_file_not_found) {
+      message("Full sig file found locally. Use writeLandMarkOnlyFile(CMap_files) to generate and write .gctx file containing only landmark genes. This requires about 32 GB of RAM.")
     }
   }
-
   return(CMap_files)
 }
 
